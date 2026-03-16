@@ -1,0 +1,59 @@
+import * as Phaser from 'phaser';
+import { SCENE_KEYS } from './scene-keys';
+import { ASSET_KEYS, ASSET_PACK_KEYS } from '../common/assets';
+import { LEVEL_NAME } from '../common/common';
+import { LevelData } from '../common/types';
+
+export class PreloadScene extends Phaser.Scene {
+  constructor() {
+    super({
+      key: SCENE_KEYS.PRELOAD_SCENE,
+    });
+  }
+
+  public preload(): void {
+    // load asset pack that has assets for the rest of the game
+    this.load.pack(ASSET_PACK_KEYS.MAIN, 'assets/data/assets.json');
+
+    //test background image
+  // this.load.image('TEST_BG', 'assets/levels/portfolio.png');
+  }
+
+
+
+  public create(): void {
+    this.#createAnimations();
+    
+
+    //TODO data manager to control this data
+    const sceneData: LevelData = {
+      level: LEVEL_NAME.DUNGEON_1,
+      roomId: 1,
+      doorId: 1,
+    }
+    this.scene.start(SCENE_KEYS.GAME_SCENE, sceneData);
+  }
+
+  #createAnimations(): void {
+    this.anims.createFromAseprite(ASSET_KEYS.PLAYER);
+    this.anims.createFromAseprite(ASSET_KEYS.SPIDER);
+    this.anims.createFromAseprite(ASSET_KEYS.WISP);
+    this.anims.createFromAseprite(ASSET_KEYS.BLUE_CRYSTAL);
+    this.anims.create({
+      key: ASSET_KEYS.ENEMY_DEATH,
+      frames: this.anims.generateFrameNumbers(ASSET_KEYS.ENEMY_DEATH),
+      frameRate: 6,
+      repeat: 0,
+      delay: 0,
+    });
+
+     this.anims.create({
+      key: ASSET_KEYS.POT_BREAK,
+      frames: this.anims.generateFrameNumbers(ASSET_KEYS.POT_BREAK),
+      frameRate: 6,
+      repeat: 0,
+      delay: 0,
+    });
+  }
+
+}
