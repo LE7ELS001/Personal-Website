@@ -1,6 +1,6 @@
 export const ENABLE_LOGGING = false;
 export const DEBUG_COLLISION_ALPHA = 0;
-export const ENEMIES_COLLISION_LAYER = 0;
+export const ENABLE_ENEMIES_COLLISION_LAYER = false;
 
 export const PLAYER_SPEED = 110;
 export const PLAYER_INVULNERABLE_AFTER_HIT_DURATION = 1000;
