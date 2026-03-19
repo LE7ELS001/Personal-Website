@@ -1,5 +1,5 @@
-import { DIRECTION } from "./common";
-import { CustomGameObject, Direction, GameObject } from "./types";
+import { DIRECTION, LEVEL_NAME } from "./common";
+import { CustomGameObject, Direction, GameObject, LevelData, LevelName, Position } from "./types";
 
 /**
  * Utility function to ensure we handle the full possible range of types when checking a variable for a possible
@@ -26,4 +26,21 @@ export function isDirection(direction: string): direction is Direction {
 
 export function isCustomGameObject(gameObject: GameObject): gameObject is GameObject & CustomGameObject{
     return gameObject['disableObject'] != undefined && gameObject['enableObject'] !== undefined;
+}
+
+export function getDirectionOfObjectFromAnotherObject(object: Position, targetObject: Position): Direction{
+  if (object.y < targetObject.y) {
+    return DIRECTION.DOWN;
+  }
+  if (object.y > targetObject.y) {
+    return DIRECTION.UP;
+  }
+  if (object.x < targetObject.x) {
+    return DIRECTION.RIGHT;
+  }
+    return DIRECTION.LEFT;
+}
+
+export function isLevelName(levelName: string): levelName is LevelName {
+  return LEVEL_NAME[levelName] !== undefined;
 }

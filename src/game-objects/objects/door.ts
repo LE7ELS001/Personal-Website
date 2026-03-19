@@ -64,6 +64,10 @@ export class Door implements CustomGameObject{
     }
 
     get targetRoomId(): number {
+        return this.#targetRoomId;
+    }
+
+    get targetDoorId(): number {
         return this.#targetDoorId;
     }
 

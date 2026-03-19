@@ -7,12 +7,12 @@ import { Spider } from '../game-objects/enemies/spider';
 import { Wisp } from '../game-objects/enemies/wisp';
 import { CharacterGameObject } from '../game-objects/common/character-game-object';
 import { CHEST_STATE, DIRECTION } from '../common/common';
-import { DEBUG_COLLISION_ALPHA, LIFT_ITEM_ANIMATION_DELAY, PLAYER_START_MAX_HEALTH } from '../common/config';
+import * as CONFIG from '../common/config';
 import { Pot } from '../game-objects/objects/pot';
 import { Chest } from '../game-objects/objects/chest';
 import { ChestState, GameObject, LevelData } from '../common/types';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
-import { isArcadePhysicsBody } from '../common/utils';
+import { exhaustiveGuard, getDirectionOfObjectFromAnotherObject, isArcadePhysicsBody, isLevelName } from '../common/utils';
 import { Crystal } from '../game-objects/objects/crystal';
 import { MoveState } from '../components/state-machine/states/character/move-state';
 import { TiledRoomObject } from '../common/tiled/types';
@@ -106,6 +106,12 @@ export class GameScene extends Phaser.Scene {
       this.#player.collideWithGameObject(gameObject as GameObject);
     })
 
+
+    //register collisions between player and blocking game objects
+    this.physics.add.overlap(this.#player, this.#doorTransitionGroup, (playerObj, doorObj) => {
+      this.#handleRoomTransition(doorObj as Phaser.Types.Physics.Arcade.GameObjectWithBody);
+    });
+
     this.physics.add.collider(this.#enemyGroup, this.#blockingGroup, (enemy, gameObject) => {
       if (gameObject instanceof Pot && isArcadePhysicsBody(gameObject.body) && (gameObject.body.velocity.x !== 0 || gameObject.body.velocity.y !== 0)) {
         const enemyGameObject = enemy as CharacterGameObject;
@@ -191,15 +197,15 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.#collisionLayer = collisionLayer;
-    this.#collisionLayer.setDepth(2).setAlpha(DEBUG_COLLISION_ALPHA);
+    this.#collisionLayer.setDepth(2).setAlpha(CONFIG.DEBUG_COLLISION_ALPHA);
 
     const enemyCollisionLayer = map.createLayer(TILED_LAYER_NAMES.ENEMY_COLLISION, collisionTiles, 0, 0);
     if (enemyCollisionLayer === null) {
       console.log('error while creating enemies collision layer');
       return;
     }
-    this.#enemiesCollisionLayer = collisionLayer;
-    this.#enemiesCollisionLayer.setDepth(2).setVisible(false);
+    this.#enemiesCollisionLayer = enemyCollisionLayer;
+    this.#enemiesCollisionLayer.setDepth(2).setVisible(CONFIG.ENABLE_ENEMIES_COLLISION_LAYER);
 
     
     //initialize objects
@@ -246,18 +252,43 @@ export class GameScene extends Phaser.Scene {
 
   
   #setUpPlayer(): void {
+
+    //set up player starting position
+    const startingDoor = this.#objectByRoomId[this.#levelData.roomId].doorMap[this.#levelData.doorId];
+    const playerStartPosition = {
+      x: startingDoor.x + startingDoor.doorTransitionZone.width / 2,
+      y: startingDoor.y - startingDoor.doorTransitionZone.height /2,
+    }
+    switch (startingDoor.direction) {
+      case DIRECTION.UP:
+        playerStartPosition.y += 40;
+        break;
+      case DIRECTION.DOWN:
+        playerStartPosition.y -= 40;
+        break;
+      case DIRECTION.LEFT:
+        playerStartPosition.x += 40;
+        break;
+      case DIRECTION.RIGHT:
+        playerStartPosition.x -= 40;
+        break;
+      default:
+        exhaustiveGuard(startingDoor.direction);
+    }
+
+
     this.#player = new Player({
       scene: this,
-      position: { x: this.scale.width / 2, y: this.scale.height / 2 },
+      position: { x: playerStartPosition.x, y: playerStartPosition.y },
       controls: this.#controls,
-      maxLife: PLAYER_START_MAX_HEALTH,
-      currentLife: PLAYER_START_MAX_HEALTH
+      maxLife: CONFIG.PLAYER_START_MAX_HEALTH,
+      currentLife: CONFIG.PLAYER_START_MAX_HEALTH
     });
   }
 
   #tempCode(): void {
     this.add
-      .text(this.scale.width / 2, this.scale.height / 2, 'Game Scene 2', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P })
+      .text(this.scale.width / 2, this.scale.height / 2, '', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P })
       .setOrigin(0.5);
     
 
@@ -356,9 +387,118 @@ export class GameScene extends Phaser.Scene {
     console.log(layerName, roomId);
     const validTileObjects = getTiledPotObjectsFromMap(map, layerName);
   }
+
+  //TODO
   #createEnemies(map: Phaser.Tilemaps.Tilemap, layerName: string, roomId: number): void {
     console.log(layerName, roomId);
     const validTileObjects = getTiledEnemyObjectsFromMap(map, layerName);
+  }
+
+  #handleRoomTransition(doorTrigger: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
+    console.log(doorTrigger.name);
+    this.#controls.isMovementLocked = true;
+    const door = this.#objectByRoomId[this.#currentRoomId].doorMap[doorTrigger.name] as Door;
+
+    //transition to another level 
+    const modifiedLevelName = door.targetLevel.toUpperCase();
+    if (isLevelName(modifiedLevelName)) {
+      const sceneData = {
+      level: modifiedLevelName,
+      roomId: door.targetRoomId,
+      doorId: door.targetDoorId
+      }
+      this.scene.start(SCENE_KEYS.GAME_SCENE, sceneData);
+      return;
+    };
+
+    //transition to another room 
+    const targetdoor = this.#objectByRoomId[door.targetRoomId].doorMap[door.targetDoorId];
+
+    door.disableObject();
+    targetdoor.disableObject(); 
+
+    //calculate the transit distance
+    const targetDirection = getDirectionOfObjectFromAnotherObject(door, targetdoor);
+    const doorDistance = {
+      x: Math.abs((door.doorTransitionZone.x - targetdoor.doorTransitionZone.x) / 2),
+      y: Math.abs((door.doorTransitionZone.y - targetdoor.doorTransitionZone.y) / 2)
+    };
+    if (targetDirection === DIRECTION.LEFT) {
+      doorDistance.x *= -1;
+    }
+    if (targetDirection === DIRECTION.UP) {
+      doorDistance.y *= -1;
+    }
+
+    const playerTargetPosition = {
+      x: door.x + door.doorTransitionZone.width / 2 + doorDistance.x,
+      y: door.y - door.doorTransitionZone.height / 2 + doorDistance.y,
+    }
+    this.tweens.add({
+      targets: this.#player,
+      y: playerTargetPosition.y,
+      x: playerTargetPosition.x,
+      duration: CONFIG.ROOM_TRANSITION_PLAYER_INTO_HALL_DURATION,
+      delay: CONFIG.ROOM_TRANSITION_PLAYER_INTO_HALL_DELAY,
+    })
+
+    //camera movement 
+    const roomSize = this.#objectByRoomId[targetdoor.roomId].room;
+    this.cameras.main.setBounds(
+      this.cameras.main.worldView.x,
+      this.cameras.main.worldView.y,
+      this.cameras.main.worldView.width,
+      this.cameras.main.worldView.height,
+    );
+    this.cameras.main.stopFollow();
+    const bounds = this.cameras.main.getBounds();
+    this.tweens.add({
+      targets: bounds,
+      x: roomSize.x,
+      y: roomSize.y - roomSize.height,
+      duration: CONFIG.ROOM_TRANSITION_CAMERA_ANIMATION_DURATION,
+      delay: CONFIG.ROOM_TRANSITION_CAMERA_ANIMATION_DELAY,
+      onUpdate: () => {
+        this.cameras.main.setBounds(
+          bounds.x,
+          bounds.y,
+          roomSize.width,
+          roomSize.height,
+        )
+      },
+    });
+
+    //player animation(move in the new room)
+    const playerDistanceToMoveIntoRoom = {
+      x: doorDistance.x * 2,
+      y: doorDistance.y * 2
+    }
+    if (targetDirection === DIRECTION.UP || targetDirection === DIRECTION.DOWN) {
+      playerDistanceToMoveIntoRoom.y = Math.max(Math.abs(playerDistanceToMoveIntoRoom.y), 32);
+      if (targetDirection === DIRECTION.UP) {
+        playerDistanceToMoveIntoRoom.y *= -1;
+      }
+    } else {
+      playerDistanceToMoveIntoRoom.x = Math.max(Math.abs(playerDistanceToMoveIntoRoom.x), 32);
+      if (targetDirection === DIRECTION.LEFT) {
+        playerDistanceToMoveIntoRoom.x *= -1;
+      }
+    }
+
+    this.tweens.add({
+      targets: this.#player,
+      y: playerTargetPosition.y + playerDistanceToMoveIntoRoom.y,
+      x: playerTargetPosition.x + playerDistanceToMoveIntoRoom.x,
+      duration: CONFIG.ROOM_TRANSITION_PLAYER_INTO_NEXT_ROOM_DURATION,
+      delay: CONFIG.ROOM_TRANSITION_PLAYER_INTO_NEXT_ROOM_DELAY,
+      onComplete: () => {
+        targetdoor.enableObject();
+        this.#currentRoomId = targetdoor.roomId;
+        this.cameras.main.startFollow(this.#player);
+         this.#controls.isMovementLocked = false;
+      },
+    })
+
   }
 
 }

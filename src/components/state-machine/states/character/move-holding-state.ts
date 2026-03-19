@@ -27,6 +27,7 @@ export class MoveHoldingState extends BaseMoveState {
         
         if (this.isNoInputMovemnt(controls)) {
             this._stateMachine.setState(CHARACTER_STATES.IDLE_HOLDING_STATE);
+            return;
         }
     
         this.handleCharacterMovement();
