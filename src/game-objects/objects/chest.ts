@@ -1,11 +1,12 @@
 import * as Phaser from 'phaser'
 import { ChestState, CustomGameObject, Position } from '../../common/types';
 import { ASSET_KEYS, CHEST_FRAME_KEYS } from '../../common/assets';
-import { CHEST_STATE, INTERACTIVE_OBJECT_TYPE } from '../../common/common';
+import { CHEST_STATE, INTERACTIVE_OBJECT_TYPE, LEVEL_NAME } from '../../common/common';
 import { InteractiveObjectComponent } from '../../components/game-object/interactive-object-component';
 import { flash } from '../../common/juice-utils';
 import { ChestReward, TiledChestObject, TrapType } from '../../common/tiled/types';
 import { TRAP_TYPE } from '../../common/tiled/common';
+import { InventoryManager } from '../../components/inventory/inventory-manager';
 
 
 export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObject{
@@ -43,8 +44,13 @@ export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObje
                 return true;
             }
 
-            //make sure we have the key 
-                return false;
+            //use data manger information to check if we have boss key
+            if (!InventoryManager.instance.getAreaInventory(LEVEL_NAME.DUNGEON_1).bossKey)
+            {
+            
+            return false;
+            };
+            return true;
         },
         () => {
             this.open();
@@ -57,6 +63,8 @@ export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObje
             }
             return;
         }
+
+        //disable obejct when player can't see them
         this.disableObject();
     }
 

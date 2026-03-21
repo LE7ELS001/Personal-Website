@@ -75,6 +75,10 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
         //general config
         this._isPlayer = isPlayer;
         this._isDefeated = false;
+
+        if (!this._isPlayer) {
+            this.disableObject();
+        }
     }
 
     get isDefeated(): boolean {
@@ -99,6 +103,10 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
 
     set direction(value: Direction) {
         this._directionComponent.direction = value;
+    }
+
+    get stateMachine(): StateMachine {
+        return this._stateMachine;
     }
 
     

@@ -70,12 +70,17 @@ export class Spider extends CharacterGameObject{
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
 
 
+    }
+
+    public enableObject(): void {
+        super.enableObject();
+
         this.scene.time.addEvent({
-            delay: Phaser.Math.Between(500, 1500),
+            delay: Phaser.Math.Between(ENEMY_SPDIER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPDIER_CHANGE_DIRECTION_DELAY_MAX),
             callback: this.#changeDirection,
             callbackScope: this,
             loop: false,
-        })
+        });
     }
 
     #handleDirectionChange(direction: Direction): void {
@@ -99,6 +104,10 @@ export class Spider extends CharacterGameObject{
 
     #changeDirection(): void {
         this.controls.reset();
+
+        if (!this.active) {
+            return;
+        }
 
 
             this.scene.time.delayedCall(ENEMY_SPDIER_CHANGE_DIRECTION_DELAY_WAIT, () => {

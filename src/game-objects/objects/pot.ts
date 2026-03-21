@@ -24,8 +24,10 @@ export class Pot extends Phaser.Physics.Arcade.Sprite implements CustomGameObjec
         new InteractiveObjectComponent(this, INTERACTIVE_OBJECT_TYPE.PICKUP);
         new ThorwableGameObjectComponent(this, () => {
             this.break();
-        })
+        });
 
+        //disable obejct when player can't see them
+        this.disableObject();
     }
 
     public disableObject(): void {
@@ -47,5 +49,12 @@ export class Pot extends Phaser.Physics.Arcade.Sprite implements CustomGameObjec
             this.setTexture(ASSET_KEYS.POT, 0);
             this.disableObject();
         })
+    }
+
+    public resetPosition(): void {
+        this.scene.time.delayedCall(1, () => {
+            this.setPosition(this.#position.x, this.#position.y).setOrigin(0,1);
+            this.enableObject();
+        });
     }
 }

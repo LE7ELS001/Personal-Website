@@ -80,6 +80,8 @@ export class Door implements CustomGameObject{
 
             this.#doorObject = door;
         }
+        //disable obejct when player can't see them
+        this.disableObject();
     }
 
     public disableObject(disableDoorTrigger = true): void {

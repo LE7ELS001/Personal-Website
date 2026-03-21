@@ -6,6 +6,7 @@ import { CharacterGameObject } from "../../../../game-objects/common/character-g
 import { CHARACTER_ANIMATIONS } from "../../../../common/assets";
 import { HeldGameObjectComponent } from "../../../game-object/held-game-object-component";
 import { ThorwableGameObjectComponent } from "../../../game-object/throwable-object-component";
+import { CUSTOM_EVENTS, EVENT_BUS } from "../../../../common/event-bus";
 
 export class DeathState extends BaseCharacterState {
     #onDieCallback: () => void;
@@ -43,7 +44,13 @@ export class DeathState extends BaseCharacterState {
     }
 
     #triggerDefeatedEvent(): void {
-        this._gameObject.disableObject();  
+        this._gameObject.disableObject();
+        if (this._gameObject.isEnemy) {
+            EVENT_BUS.emit(CUSTOM_EVENTS.ENEMY_DESTROYED);
+        } else {
+            EVENT_BUS.emit(CUSTOM_EVENTS.PLAYER_DEFEATED);
+        }
+
         this.#onDieCallback();
         }
 

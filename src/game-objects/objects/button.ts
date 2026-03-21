@@ -27,6 +27,10 @@ export class Button extends Phaser.Physics.Arcade.Image implements CustomGameObj
         this.#switchTargetIds = config.targetIds;
         this.#switchAction = config.action;
 
+
+        //disable obejct when player can't see them 
+        this.disableObject();
+
     }
 
     public press(): ButtonPressedEvent {
