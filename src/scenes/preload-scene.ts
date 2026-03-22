@@ -33,12 +33,16 @@ export class PreloadScene extends Phaser.Scene {
       doorId: DataManager.instance.data.currentArea.startDoorId,
     }
     this.scene.start(SCENE_KEYS.GAME_SCENE, sceneData);
+    //this.scene.start(SCENE_KEYS.GAME_OVER_SCENE, sceneData);
+
   }
 
   #createAnimations(): void {
+    this.anims.createFromAseprite(ASSET_KEYS.HUD_NUMBERS);
     this.anims.createFromAseprite(ASSET_KEYS.PLAYER);
     this.anims.createFromAseprite(ASSET_KEYS.SPIDER);
     this.anims.createFromAseprite(ASSET_KEYS.WISP);
+    this.anims.createFromAseprite(ASSET_KEYS.DROW);
     this.anims.createFromAseprite(ASSET_KEYS.BLUE_CRYSTAL);
     this.anims.create({
       key: ASSET_KEYS.ENEMY_DEATH,

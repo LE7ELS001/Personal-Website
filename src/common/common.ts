@@ -1,3 +1,6 @@
+
+import { ASSET_KEYS } from "./assets";
+
 export const DIRECTION = {
     UP: 'UP',
     DOWN: 'DOWN',
@@ -29,4 +32,20 @@ export const DUNGEON_ITEM = {
     BOSS_KEY: 'BOSS_KEY',
     MAP:'MAP',
     COMPASS:'COMPASS'
+} as const 
+
+export const DEFAULT_UI_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
+    align: 'center',
+    fontFamily: ASSET_KEYS.FONT_PRESS_START_2P,
+    fontSize: 8,
+    wordWrap: { width: 170 },
+    color: '#FFFFFF'
+}
+
+export const CHEST_REWARD_TO_DIALOG_MAP = {
+    SMALL_KEY: 'You found a small key, you can use this to unlock a door',
+    BOSS_KEY: 'This Key looks so different, maybe it\'s for a special door',
+    MAP:'You found the Map of the dungeon',
+    COMPASS: 'You found the Compass',
+    NOTHING: '...The chest was empty'
 } as const 

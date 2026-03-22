@@ -6,7 +6,7 @@ import { KeyboardComponent } from '../components/input/keyboard-component';
 import { Spider } from '../game-objects/enemies/spider';
 import { Wisp } from '../game-objects/enemies/wisp';
 import { CharacterGameObject } from '../game-objects/common/character-game-object';
-import { CHEST_STATE, DIRECTION, LEVEL_NAME } from '../common/common';
+import { CHEST_REWARD_TO_DIALOG_MAP, CHEST_STATE, DIRECTION, LEVEL_NAME } from '../common/common';
 import * as CONFIG from '../common/config';
 import { Pot } from '../game-objects/objects/pot';
 import { Chest } from '../game-objects/objects/chest';
@@ -24,6 +24,7 @@ import { InventoryManager } from '../components/inventory/inventory-manager';
 import { CHARACTER_STATES } from '../components/state-machine/states/character/character-states';
 import { WeaponComponent } from '../components/game-object/weapon-component';
 import { DataManager } from '../common/data-manager/data-manager';
+import { Drow } from '../game-objects/enemies/boss/drow';
 
 export class GameScene extends Phaser.Scene {
   #levelData!: LevelData;
@@ -89,7 +90,7 @@ export class GameScene extends Phaser.Scene {
     this.#registerColliders();
     this.#registerCustomEvents();
 
-  
+    this.scene.launch(SCENE_KEYS.UI_SCENE);
   } 
 
 
@@ -269,12 +270,14 @@ export class GameScene extends Phaser.Scene {
     EVENT_BUS.on(CUSTOM_EVENTS.OEPNED_CHEST, this.#handleOpenChest, this);
     EVENT_BUS.on(CUSTOM_EVENTS.ENEMY_DESTROYED, this.#checkForAllEnemiesAreDefeated, this);
     EVENT_BUS.on(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
+    EVENT_BUS.on(CUSTOM_EVENTS.DIALOG_CLOSE, this.#handleDialogClose, this);
 
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       EVENT_BUS.off(CUSTOM_EVENTS.OEPNED_CHEST, this.#handleOpenChest, this);
       EVENT_BUS.off(CUSTOM_EVENTS.OEPNED_CHEST, this.#checkForAllEnemiesAreDefeated, this);
       EVENT_BUS.off(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
+      EVENT_BUS.off(CUSTOM_EVENTS.DIALOG_CLOSE, this.#handleDialogClose, this);
 
     })
   }
@@ -297,10 +300,8 @@ export class GameScene extends Phaser.Scene {
       y: this.#rewardItem.y - 16,
       duration: 500,
       onComplete: () => {
-        this.time.delayedCall(1000, () => {
-          this.#rewardItem.setVisible(false);
-        });
-        console.log(InventoryManager.instance.getAreaInventory(LEVEL_NAME.DUNGEON_1));
+        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, CHEST_REWARD_TO_DIALOG_MAP[chest.contents]);
+        this.scene.pause();
       }
     });
 
@@ -547,7 +548,8 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
       if (tileObject.type === 3) {
-        //TODO BOSS
+        const drow = new Drow({ scene: this, position: { x: tileObject.x, y: tileObject.y } });
+        this.#objectByRoomId[roomId].enemyGroup.add(drow);
         continue
       }
        if (tileObject.type === 4) {
@@ -777,8 +779,13 @@ export class GameScene extends Phaser.Scene {
 
   #handlePlayerDefeatedEvent(): void {
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.restart();
+      this.scene.start(SCENE_KEYS.GAME_OVER_SCENE);
     });
     this.cameras.main.fadeOut(1000, 0, 0, 0);
+  }
+
+  #handleDialogClose(): void {
+    this.#rewardItem.setVisible(false);
+    this.scene.resume();
   }
 }
