@@ -9,8 +9,8 @@ export class KeyboardComponent extends InputComponent {
     constructor(keyboardPlugin: Phaser.Input.Keyboard.KeyboardPlugin) {
         super();
        this.#cursorkeys = keyboardPlugin.createCursorKeys();
-        this.#attackKey =keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-        this.#actionKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        this.#attackKey =keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        this.#actionKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.C);
         this.#enterKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
         this.#cursorkeys.up.isDown

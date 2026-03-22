@@ -22,4 +22,8 @@ export class BaseGameObjectComponent {
     protected assignComponent(object: GameObject): void {
         object[`_${this.constructor.name}`] = this;
     }
+
+    protected assignComponentToObject(object: GameObject | Phaser.Physics.Arcade.Body): void{
+        object[`_${this.constructor.name}`] = this;
+    }
 }

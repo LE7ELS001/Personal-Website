@@ -22,6 +22,7 @@ import { Door } from '../game-objects/objects/door';
 import { Button } from '../game-objects/objects/button';
 import { InventoryManager } from '../components/inventory/inventory-manager';
 import { CHARACTER_STATES } from '../components/state-machine/states/character/character-states';
+import { WeaponComponent } from '../components/game-object/weapon-component';
 
 export class GameScene extends Phaser.Scene {
   #levelData!: LevelData;
@@ -146,10 +147,8 @@ export class GameScene extends Phaser.Scene {
       if (this.#objectByRoomId[roomId].enemyGroup !== undefined) {
         this.physics.add.collider(this.#objectByRoomId[roomId].enemyGroup, this.#enemiesCollisionLayer);
         
-        this.physics.add.overlap(this.#player, this.#objectByRoomId[roomId].enemyGroup, (player, enemy) => {
+        this.physics.add.overlap(this.#player, this.#objectByRoomId[roomId].enemyGroup, () => {
           this.#player.hit(DIRECTION.DOWN, 1);
-          const enemyGameObject = enemy as CharacterGameObject;
-          enemyGameObject.hit(this.#player.direction, 1);
         });
         this.physics.add.collider(this.#objectByRoomId[roomId].enemyGroup, this.#blockingGroup, (enemy, gameObject) => {
           if (gameObject instanceof Pot && isArcadePhysicsBody(gameObject.body) && (gameObject.body.velocity.x !== 0 || gameObject.body.velocity.y !== 0)) {
@@ -164,12 +163,9 @@ export class GameScene extends Phaser.Scene {
           if (gameObject instanceof Crystal) {
             console.log('enemy hit the crystal');
           }
-      
-      
         },
 
-      
-          (enemy, gameObject) => {
+        (enemy, gameObject) => {
             const body = (gameObject as unknown as GameObject).body
             if (enemy instanceof Wisp) {
         
@@ -183,6 +179,39 @@ export class GameScene extends Phaser.Scene {
        
             return true;
           });
+        
+        //collide with player weapon
+          this.physics.add.overlap(
+            this.#objectByRoomId[roomId].enemyGroup,
+            this.#player.WeaponComponent.body,
+            (enemy) => {
+            (enemy as CharacterGameObject).hit(this.#player.direction, this.#player.WeaponComponent.weaponDamage);
+
+          },   
+          );
+
+          const enemyWeapons = this.#objectByRoomId[roomId].enemyGroup.getChildren().flatMap((enemy) => {
+              const weaponComponent = WeaponComponent.getComponent<WeaponComponent>(enemy as GameObject);
+            if (weaponComponent !== undefined) {
+              return [weaponComponent.body];
+            }
+            return [];
+          });
+        
+          if (enemyWeapons.length > 0) {
+            this.physics.add.overlap(enemyWeapons,
+            this.#player,
+            (enemyWeaponBody) => {
+            const weaponComponent = WeaponComponent.getComponent<WeaponComponent>(enemyWeaponBody as GameObject);
+              if (weaponComponent === undefined || weaponComponent.weapon === undefined)
+              {
+                return;
+              }
+              weaponComponent.weapon.onCollisionCallback();
+              this.#player.hit(DIRECTION.DOWN, weaponComponent.weaponDamage);
+          },   
+          );
+        }
 
       }
 

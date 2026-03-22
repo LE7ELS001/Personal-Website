@@ -29,6 +29,12 @@ export class IdleState extends BaseCharacterState {
 
     public onUpdate(): void {
         const controls = this._gameObject.controls;
+
+        if (controls.isAttackKeyJustDown) {
+            this._stateMachine.setState(CHARACTER_STATES.ATTACK_STATE);
+            return;
+        }
+
          if (!controls.isLeftDown && !controls.isRightDown && !controls.isUpDown && !controls.isDownDown) { 
              return;
         }
