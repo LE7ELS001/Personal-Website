@@ -1,4 +1,5 @@
 import { CHARACTER_ANIMATIONS } from "../../common/assets";
+import { DataManager } from "../../common/data-manager/data-manager";
 import { CustomGameObject, Direction, Position } from "../../common/types";
 import { AnimationComponent, AnimationsConfig } from "../../components/game-object/animation-component";
 import { ControlsComponent } from "../../components/game-object/controls-component";
@@ -134,6 +135,10 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
         }
 
         this._lifeComponent.takeDamage(damage);
+        if (this._isPlayer) {
+            DataManager.instance.updatePlayerCurrentHealth(this._lifeComponent.life);
+        }
+
         if (this._lifeComponent.life === 0) {
             this._isDefeated = true;
             this._stateMachine.setState(CHARACTER_STATES.DEATH_STATE, direction);

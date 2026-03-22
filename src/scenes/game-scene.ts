@@ -23,6 +23,7 @@ import { Button } from '../game-objects/objects/button';
 import { InventoryManager } from '../components/inventory/inventory-manager';
 import { CHARACTER_STATES } from '../components/state-machine/states/character/character-states';
 import { WeaponComponent } from '../components/game-object/weapon-component';
+import { DataManager } from '../common/data-manager/data-manager';
 
 export class GameScene extends Phaser.Scene {
   #levelData!: LevelData;
@@ -125,7 +126,11 @@ export class GameScene extends Phaser.Scene {
         if (areaInventroy.keys > 0) {
           InventoryManager.instance.useAreaSmallKey(this.#levelData.level);
           door.open();
+
+          //use data manager to keep the door state
+          DataManager.instance.updateDoortData(this.#currentRoomId, door.id, true);
         }
+
         return;
       }
 
@@ -263,14 +268,22 @@ export class GameScene extends Phaser.Scene {
   #registerCustomEvents(): void {
     EVENT_BUS.on(CUSTOM_EVENTS.OEPNED_CHEST, this.#handleOpenChest, this);
     EVENT_BUS.on(CUSTOM_EVENTS.ENEMY_DESTROYED, this.#checkForAllEnemiesAreDefeated, this);
+    EVENT_BUS.on(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
+
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       EVENT_BUS.off(CUSTOM_EVENTS.OEPNED_CHEST, this.#handleOpenChest, this);
-          EVENT_BUS.off(CUSTOM_EVENTS.OEPNED_CHEST, this.#checkForAllEnemiesAreDefeated, this);
+      EVENT_BUS.off(CUSTOM_EVENTS.OEPNED_CHEST, this.#checkForAllEnemiesAreDefeated, this);
+      EVENT_BUS.off(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
 
     })
   }
 
   #handleOpenChest(chest: Chest): void {
+    //use data manager to keep the door state
+    DataManager.instance.updateChestData(this.#currentRoomId, chest.id, true, true);
+
+
     if (chest.contents !== CHEST_REWARD.NOTHING) {
       InventoryManager.instance.addDungeonItem(this.#levelData.level, chest.contents);
     }
@@ -441,6 +454,14 @@ export class GameScene extends Phaser.Scene {
         return;
       }
 
+      const existingDoorsData =
+          DataManager.instance.data.areaDetails[DataManager.instance.data.currentArea.name][roomId]
+            ?.doors[tileObejct.id];
+            if (existingDoorsData !== undefined && existingDoorsData.unlocked) {
+            door.open();
+          }
+      
+
       if (door.doorType === DOOR_TYPE.LOCK || door.doorType === DOOR_TYPE.BOSS) {
         this.#lockedDoorGroup.add(door.doorObejct);
         return;
@@ -471,6 +492,18 @@ export class GameScene extends Phaser.Scene {
       this.#objectByRoomId[roomId].chests.push(chest)
       this.#objectByRoomId[roomId].chestMap[chest.id] = chest;
       this.#blockingGroup.add(chest);
+
+        const existingChestsData =
+          DataManager.instance.data.areaDetails[DataManager.instance.data.currentArea.name][roomId]
+            ?.chests[tileObejct.id];
+            if (existingChestsData !== undefined) {
+              if (existingChestsData.revealed) {
+                chest.reveal();
+              };
+              if (existingChestsData.opened) {
+                chest.open();
+              }
+          }
     });
   }
 
@@ -651,7 +684,15 @@ export class GameScene extends Phaser.Scene {
         buttonPressedData.targetIds.forEach((id) => this.#objectByRoomId[this.#currentRoomId].doorMap[id].open());
         break;
       case SWITCH_ACTION.REVEAL_CHEST:
-         buttonPressedData.targetIds.forEach((id) => this.#objectByRoomId[this.#currentRoomId].chestMap[id].reveal());
+        buttonPressedData.targetIds.forEach((id) => {
+          this.#objectByRoomId[this.#currentRoomId].chestMap[id].reveal();
+          //use data manager to keep the door state
+          const existingChestData = DataManager.instance.data.areaDetails[DataManager.instance.data.currentArea.name][this.#currentRoomId]
+            ?.chests[id];
+          if (!existingChestData || !existingChestData.revealed) {
+            DataManager.instance.updateChestData(this.#currentRoomId, id, true, false);
+          }
+        });
         break;
       case SWITCH_ACTION.REVEAL_KEY:
         break;
@@ -682,9 +723,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   #handleAllEnemiesDefeated(): void{
+
+
     this.#objectByRoomId[this.#currentRoomId].chests.forEach((chest) => {
       if (chest.revealTrigger === TRAP_TYPE.ENEMIES_DEFEATED) {
         chest.reveal();
+
+        const existingChestData =
+          DataManager.instance.data.areaDetails[DataManager.instance.data.currentArea.name][this.#currentRoomId]
+            ?.chests[chest.id];
+          if (!existingChestData || !existingChestData.revealed) {
+            DataManager.instance.updateChestData(this.#currentRoomId, chest.id, true, false);
+          }
       } 
     });
 
@@ -723,5 +773,12 @@ export class GameScene extends Phaser.Scene {
     {
       (child as CharacterGameObject).disableObject();
     }
+  }
+
+  #handlePlayerDefeatedEvent(): void {
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.restart();
+    });
+    this.cameras.main.fadeOut(1000, 0, 0, 0);
   }
 }

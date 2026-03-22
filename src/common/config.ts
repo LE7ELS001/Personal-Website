@@ -5,7 +5,7 @@ export const ENABLE_ENEMIES_COLLISION_LAYER = false;
 export const PLAYER_SPEED = 110;
 export const PLAYER_INVULNERABLE_AFTER_HIT_DURATION = 1000;
 export const PLAYER_HURT_PUSH_BACK_SPEED = 50;
-export const PLAYER_START_MAX_HEALTH = 20;
+export const PLAYER_START_MAX_HEALTH = 2;
 export const PLAYER_ATTACK_DAMAGE = 1;
 
 export const ENEMY_SPIDER_SPEED = 80;

@@ -7,6 +7,7 @@ import { flash } from '../../common/juice-utils';
 import { ChestReward, TiledChestObject, TrapType } from '../../common/tiled/types';
 import { TRAP_TYPE } from '../../common/tiled/common';
 import { InventoryManager } from '../../components/inventory/inventory-manager';
+import { DataManager } from '../../common/data-manager/data-manager';
 
 
 export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObject{
@@ -45,7 +46,7 @@ export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObje
             }
 
             //use data manger information to check if we have boss key
-            if (!InventoryManager.instance.getAreaInventory(LEVEL_NAME.DUNGEON_1).bossKey)
+            if (!InventoryManager.instance.getAreaInventory(DataManager.instance.data.currentArea.name).bossKey)
             {
             
             return false;
