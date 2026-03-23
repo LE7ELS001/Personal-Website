@@ -1,5 +1,4 @@
 import { __values } from "tslib";
-import { isArcadePhysicsBody } from "../../../../common/utils";
 import { BaseCharacterState } from "./base-character-state";
 import { CHARACTER_STATES } from "./character-states";
 import { CharacterGameObject } from "../../../../game-objects/common/character-game-object";
@@ -29,6 +28,11 @@ export class IdleState extends BaseCharacterState {
 
     public onUpdate(): void {
         const controls = this._gameObject.controls;
+
+        if (controls.isMovementLocked)
+        {
+            return;
+        }
 
         if (controls.isAttackKeyJustDown) {
             this._stateMachine.setState(CHARACTER_STATES.ATTACK_STATE);

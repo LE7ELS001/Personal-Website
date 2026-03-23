@@ -45,8 +45,8 @@ export class DataManager {
                 maxHealth: PLAYER_START_MAX_HEALTH,
                 currentArea: {
                     name: LEVEL_NAME.DUNGEON_1,
-                    startRoomId: 1,
-                    startDoorId:1,
+                    startRoomId: 3,
+                    startDoorId:3,
                 },
                 areaDetails: {
                     DUNGEON_1: {
@@ -64,6 +64,10 @@ export class DataManager {
                 DataManager.#instance = new DataManager();   
             }
             return DataManager.#instance;
+    }
+
+    public defeatedCurrentAreaBoss(): void {
+        this.#data.areaDetails[this.#data.currentArea.name].bossDefeated = true;
     }
     
     get data(): PlayerData{

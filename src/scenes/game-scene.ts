@@ -58,6 +58,10 @@ export class GameScene extends Phaser.Scene {
       key: SCENE_KEYS.GAME_SCENE,
     });
   }
+
+  get player(): Player{
+    return this.#player;
+  }
   
   public init(data): void {
     this.#levelData = data;
@@ -100,20 +104,23 @@ export class GameScene extends Phaser.Scene {
     this.#enemiesCollisionLayer.setCollision([this.#enemiesCollisionLayer.tileset[0].firstgid]);
       this.physics.add.collider(this.#player, this.#collisionLayer);
 
+    //collision between player and transition object
      this.physics.add.overlap(this.#player, this.#doorTransitionGroup, (playerObj, doorObj) => {
       this.#handleRoomTransition(doorObj as Phaser.Types.Physics.Arcade.GameObjectWithBody);
      });
     
-    
+    //collision between player and game object like doors, pots, chests
     this.physics.add.collider(this.#player, this.#blockingGroup, (player, gameObject) => {
       this.#player.collideWithGameObject(gameObject as GameObject);
     })
 
+    //collision between player and switch
     this.physics.add.overlap(this.#player, this.#switchesGroup, (playerObj, switchObj) => {
       this.#handleButtonPress(switchObj as Button);
     });
     
 
+    //collision between player and doors that can be unlocked
     this.physics.add.collider(this.#player, this.#lockedDoorGroup, (player, gameObject) => {
       const doorObject = gameObject as Phaser.Types.Physics.Arcade.GameObjectWithBody;
       const door = this.#objectByRoomId[this.#currentRoomId].doorMap[doorObject.name] as Door;
@@ -221,7 +228,7 @@ export class GameScene extends Phaser.Scene {
 
       }
 
-
+      //collision between pots and current room
       if (this.#objectByRoomId[roomId].pots.length > 0) {
         this.physics.add.collider(this.#objectByRoomId[roomId].pots, this.#blockingGroup, (pot) => {
           if (!(pot instanceof Pot)) {
@@ -242,26 +249,17 @@ export class GameScene extends Phaser.Scene {
     });
 
 
-  
-    
-    
-
-    this.physics.add.collider(this.#player, this.#blockingGroup, (player, gameObject) => {
-      this.#player.collideWithGameObject(gameObject as GameObject);
-    })
-
-
     //register collisions between player and blocking game objects
-    this.physics.add.overlap(this.#player, this.#doorTransitionGroup, (playerObj, doorObj) => {
-      this.#handleRoomTransition(doorObj as Phaser.Types.Physics.Arcade.GameObjectWithBody);
-    });
+    // this.physics.add.overlap(this.#player, this.#doorTransitionGroup, (playerObj, doorObj) => {
+    //   this.#handleRoomTransition(doorObj as Phaser.Types.Physics.Arcade.GameObjectWithBody);
+    // });
 
    
     
 
     //add layer collision
-      this.#collisionLayer.setCollision(this.#collisionLayer.tileset[0].firstgid);
-      this.physics.add.collider(this.#player, this.#collisionLayer);
+      //this.#collisionLayer.setCollision(this.#collisionLayer.tileset[0].firstgid);
+      //this.physics.add.collider(this.#player, this.#collisionLayer);
     
    
   }
@@ -271,6 +269,7 @@ export class GameScene extends Phaser.Scene {
     EVENT_BUS.on(CUSTOM_EVENTS.ENEMY_DESTROYED, this.#checkForAllEnemiesAreDefeated, this);
     EVENT_BUS.on(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
     EVENT_BUS.on(CUSTOM_EVENTS.DIALOG_CLOSE, this.#handleDialogClose, this);
+    EVENT_BUS.on(CUSTOM_EVENTS.BOSS_DEFEATED, this.#handleBossDefeated, this);
 
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -278,6 +277,8 @@ export class GameScene extends Phaser.Scene {
       EVENT_BUS.off(CUSTOM_EVENTS.OEPNED_CHEST, this.#checkForAllEnemiesAreDefeated, this);
       EVENT_BUS.off(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
       EVENT_BUS.off(CUSTOM_EVENTS.DIALOG_CLOSE, this.#handleDialogClose, this);
+      EVENT_BUS.off(CUSTOM_EVENTS.BOSS_DEFEATED, this.#handleBossDefeated, this);
+
 
     })
   }
@@ -547,7 +548,9 @@ export class GameScene extends Phaser.Scene {
         this.#objectByRoomId[roomId].enemyGroup.add(wisp);
         continue;
       }
-      if (tileObject.type === 3) {
+      if (tileObject.type === 3 &&
+        !DataManager.instance.data.areaDetails[DataManager.instance.data.currentArea.name].bossDefeated
+      ) {
         const drow = new Drow({ scene: this, position: { x: tileObject.x, y: tileObject.y } });
         this.#objectByRoomId[roomId].enemyGroup.add(drow);
         continue
@@ -744,6 +747,11 @@ export class GameScene extends Phaser.Scene {
       if (door.trapDoorTrigger === TRAP_TYPE.ENEMIES_DEFEATED) {
         door.open();
       } 
+      if (door.trapDoorTrigger === TRAP_TYPE.BOSS_DEFEATED && 
+        DataManager.instance.data.areaDetails[DataManager.instance.data.currentArea.name].bossDefeated
+      ) {
+        door.open();
+      } 
     });
   }
 
@@ -787,5 +795,10 @@ export class GameScene extends Phaser.Scene {
   #handleDialogClose(): void {
     this.#rewardItem.setVisible(false);
     this.scene.resume();
+  }
+
+  #handleBossDefeated(): void {
+    DataManager.instance.defeatedCurrentAreaBoss();
+    this.#handleAllEnemiesDefeated();
   }
 }

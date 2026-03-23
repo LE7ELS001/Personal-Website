@@ -49,6 +49,6 @@ export class AttackState extends BaseCharacterState {
         if (weapon.isAttacking) {
             return;
         }
-        this._stateMachine.setState(CHARACTER_STATES.MOVE_STATE);
+        this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
     }
 }

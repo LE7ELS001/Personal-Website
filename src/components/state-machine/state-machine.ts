@@ -66,6 +66,10 @@ export class StateMachine{
         this.#isChangingState = false;
     }
 
+    get currentStateName() {
+        return this.#currentState?.name;
+    }
+
     public addState(state: State): void {
         state.stateMachine = this;
         this.#states.set(state.name, state);

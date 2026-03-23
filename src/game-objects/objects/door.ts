@@ -1,5 +1,6 @@
 import { ASSET_KEYS, DOOR_FRAME_KEYS } from "../../common/assets";
 import { DIRECTION } from "../../common/common";
+import { ENABLE_DEBUG_ZONE_AREA } from "../../common/config";
 import { DOOR_TYPE } from "../../common/tiled/common";
 import { DoorType, TiledDoorObject, TrapType } from "../../common/tiled/types";
 import { CustomGameObject, Direction } from "../../common/types";
@@ -43,15 +44,17 @@ export class Door implements CustomGameObject{
         
         this.#scene.physics.world.enable(this.#doorTransitionZone);
         
-        this.#debugDoorTransitionZone = scene.add.rectangle(
-            this.#doorTransitionZone.x,
-            this.#doorTransitionZone.y,
-            this.#doorTransitionZone.width,
-            this.#doorTransitionZone.height,
-            0xffff00,
-            0.6
-        )
-            .setOrigin(0, 1);
+        if (ENABLE_DEBUG_ZONE_AREA) {
+            this.#debugDoorTransitionZone = scene.add.rectangle(
+                this.#doorTransitionZone.x,
+                this.#doorTransitionZone.y,
+                this.#doorTransitionZone.width,
+                this.#doorTransitionZone.height,
+                0xffff00,
+                0.6
+            )
+                .setOrigin(0, 1);
+        }
         
         if (this.#doorType !== DOOR_TYPE.OPEN && this.#doorType !== DOOR_TYPE.OPEN_ENTRANCE) {
             const frameName = DOOR_FRAME_KEYS[`${this.#doorType}_${this.#direction}`];

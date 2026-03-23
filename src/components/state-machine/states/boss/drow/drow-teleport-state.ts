@@ -5,6 +5,7 @@ import { CharacterGameObject } from '../../../../../game-objects/common/characte
 import { BaseCharacterState } from '../../character/base-character-state';
 import { CHARACTER_STATES } from '../../character/character-states';
 import { ENEMY_BOSS_HIDDEN_STATE_DURATION, ENEMY_BOSS_TELEPORT_INITIAL_STATE_DURATION, ENEMY_BOSS_TELEPORT_STATE_FINISHED_DURATION, ENEMY_DROW_DEATH_ANIMATION_DURATION } from '../../../../../common/config';
+import { DIRECTION } from '../../../../../common/common';
 
 
 export class DrowTeleportState extends BaseCharacterState {
@@ -24,6 +25,8 @@ export class DrowTeleportState extends BaseCharacterState {
                     this.#handleTeleportFinished();
                     return;
                 }
+                this._gameObject.direction = DIRECTION.DOWN;
+                this._gameObject.animationComponent.playAnimation(`IDLE_${this._gameObject.direction}`);
                 const location =
                     this.#possibleTeleportLocation[timeEvent.repeatCount % this.#possibleTeleportLocation.length];
                 this._gameObject.setPosition(location.x, location.y);
@@ -38,7 +41,8 @@ export class DrowTeleportState extends BaseCharacterState {
         this._gameObject.visible = false;
         this._gameObject.scene.time.delayedCall(ENEMY_BOSS_TELEPORT_STATE_FINISHED_DURATION, ()=> 
         {
-            const randomLocaton = Phaser.Utils.Array.GetRandom(this.#possibleTeleportLocation);
+            // const randomLocaton = Phaser.Utils.Array.GetRandom(this.#possibleTeleportLocation);
+            const randomLocaton = this.#possibleTeleportLocation[2];
             this._gameObject.setPosition(randomLocaton.x, randomLocaton.y);
             this._gameObject.visible = true;
             this._gameObject.invulnerableComponent.invulnerable = false;

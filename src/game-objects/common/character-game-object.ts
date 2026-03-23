@@ -7,6 +7,7 @@ import { DirectionComponent } from "../../components/game-object/direction-compo
 import { InvulnerableComponent } from "../../components/game-object/invulnerable-component";
 import { LifeComponent } from "../../components/game-object/life-component";
 import { SpeedComponent } from "../../components/game-object/speed-component";
+import { WeaponComponent } from "../../components/game-object/weapon-component";
 import { InputComponent } from "../../components/input/input-component";
 import { StateMachine } from "../../components/state-machine/state-machine";
 import { CHARACTER_STATES } from "../../components/state-machine/states/character/character-states";
@@ -68,7 +69,7 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
         this._directionComponent = new DirectionComponent(this);
         this._animationComponent = new AnimationComponent(this, config.animationConfig);
         this._invulnerableComponent = new InvulnerableComponent(this, isInvulnerable || false, invulnerableAfterHitAnimationDuration)
-        this._lifeComponent = new LifeComponent(this, maxLife, currentLife || 1);
+        this._lifeComponent = new LifeComponent(this, maxLife, currentLife || 1 );
 
         // add state machine 
         this._stateMachine = new StateMachine(id || 'undefined');
@@ -126,6 +127,8 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
     }
 
     public hit(direction: Direction, damage: number): void {
+        
+
         if (this._isDefeated) {
             return;
         }
@@ -133,6 +136,7 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
         if (this._invulnerableComponent.invulnerable) {
             return;
         }
+
 
         this._lifeComponent.takeDamage(damage);
         if (this._isPlayer) {
@@ -154,6 +158,11 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
         this.active = false;
         if (!this._isPlayer) {
             this.visible = false;
+        }
+
+        const weaponComponent = WeaponComponent.getComponent<WeaponComponent>(this);
+        if (weaponComponent !== undefined && weaponComponent.weapon !== undefined && weaponComponent.weapon.isAttacking) {
+            weaponComponent.weapon.onCollisionCallback();
         }
     }
 

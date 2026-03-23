@@ -55,6 +55,7 @@ export class Spider extends CharacterGameObject{
             inputComponent: new InputComponent(),
             isInvulnerable: false,
             maxLife: ENEMY_SPDIER_MAX_HEALTH,
+            currentLife:ENEMY_SPDIER_MAX_HEALTH,
         });
 
         this._directionComponent.callback = (direction: Direction) => {

@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser'
 import { Position } from '../../../common/types';
 import { WISP_ANIMATION_KEYS, ASSET_KEYS, DROW_ANIMATION_KEYS } from '../../../common/assets';
-import { ENEMY_WISP_SPEED, ENEMY_WISP_MAX_HEALTH, ENEMY_WISP_PULSE_ANIMATION_X, ENEMY_WISP_PULSE_ANIMATION_Y, ENEMY_WISP_PULSE_ANIMATION_DURATION, ENEMY_DROW_SPEED, ENEMY_DROW_MAX_HEALTH, DROW_HURT_PUSH_BACK_DELAY, HURT_PUSH_BACK_DELAY, ENEMY_DROW_DEATH_ANIMATION_DURATION } from '../../../common/config';
+import { ENEMY_WISP_SPEED, ENEMY_WISP_MAX_HEALTH, ENEMY_WISP_PULSE_ANIMATION_X, ENEMY_WISP_PULSE_ANIMATION_Y, ENEMY_WISP_PULSE_ANIMATION_DURATION, ENEMY_DROW_SPEED, ENEMY_DROW_MAX_HEALTH, DROW_HURT_PUSH_BACK_DELAY, HURT_PUSH_BACK_DELAY, ENEMY_DROW_DEATH_ANIMATION_DURATION, ENEMY_DROW_ATTACK_DAMAGE, ENEMY_DROW_ATTACK_SPEED, ENEMY_BOSS_START_INITIAL_DELAY } from '../../../common/config';
 import { AnimationsConfig } from '../../../components/game-object/animation-component';
 import { InputComponent } from '../../../components/input/input-component';
 import { BounceMoveState } from '../../../components/state-machine/states/character/bounce-move-state';
@@ -15,6 +15,10 @@ import { DeathState } from '../../../components/state-machine/states/character/d
 import { DrowHiddenState } from '../../../components/state-machine/states/boss/drow/drow-hidden-state';
 import { DrowPrepareAttackState } from '../../../components/state-machine/states/boss/drow/drow-prepare-attack-state';
 import { DrowTeleportState } from '../../../components/state-machine/states/boss/drow/drow-teleport-state';
+import { AttackState } from '../../../components/state-machine/states/character/attack-state';
+import { DrowIdleState } from '../../../components/state-machine/states/boss/drow/drow-idle-state';
+import { Dagger } from '../../weapon/dagger';
+import { CUSTOM_EVENTS, EVENT_BUS } from '../../../common/event-bus';
 
 export type DrowConfig = {
     scene: Phaser.Scene;
@@ -54,10 +58,18 @@ export class Drow extends CharacterGameObject {
             speed: ENEMY_DROW_SPEED,
             inputComponent: new InputComponent(),
             isInvulnerable: false,
-            maxLife: ENEMY_DROW_MAX_HEALTH
+            maxLife: ENEMY_DROW_MAX_HEALTH,
+            currentLife:ENEMY_DROW_MAX_HEALTH,
         });
 
         this.#weaponComponent = new WeaponComponent(this);
+        this.#weaponComponent.weapon = new Dagger(this, this.#weaponComponent, {
+            DOWN: DROW_ANIMATION_KEYS.ATTACK_DOWN,
+            UP: DROW_ANIMATION_KEYS.ATTACK_UP,
+            LEFT: DROW_ANIMATION_KEYS.ATTACK_SIDE,
+            RIGHT: DROW_ANIMATION_KEYS.ATTACK_SIDE,
+        },
+        ENEMY_DROW_ATTACK_DAMAGE, ENEMY_DROW_ATTACK_SPEED)
 
         this.setAlpha(1);
         this.setBlendMode(Phaser.BlendModes.NORMAL);
@@ -66,18 +78,20 @@ export class Drow extends CharacterGameObject {
 
 
         // add state machine
-        this._stateMachine.addState(new IdleState(this));
+        this._stateMachine.addState(new DrowIdleState(this));
         this._stateMachine.addState(new DrowHiddenState(this));
         this._stateMachine.addState(new DrowTeleportState(this, [
             new Phaser.Math.Vector2(this.scene.scale.width / 2, 80),
             new Phaser.Math.Vector2(64, 180),
             new Phaser.Math.Vector2(192, 180),
         ]));
-        this._stateMachine.addState(new DrowPrepareAttackState(this));
 
-        this._stateMachine.addState(new HurtState(this, DROW_HURT_PUSH_BACK_DELAY));
+        this._stateMachine.addState(new DrowPrepareAttackState(this));
+        this._stateMachine.addState(new AttackState(this));
+
+        this._stateMachine.addState(new HurtState(this, DROW_HURT_PUSH_BACK_DELAY, undefined, CHARACTER_STATES.TELEPORT_STATE));
         this._stateMachine.addState(new DeathState(this, ()=> {
-            this.visible = false;
+            this.visible = true;
             flash(this, () => {
                 const fx = this.postFX.addWipe(0.1, 0.1);
                 this.scene.add.tween({
@@ -86,13 +100,13 @@ export class Drow extends CharacterGameObject {
                     duration: ENEMY_DROW_DEATH_ANIMATION_DURATION,
                     onComplete: () => {
                         this.visible = false;
+                        EVENT_BUS.emit(CUSTOM_EVENTS.BOSS_DEFEATED);
                     },
                 });
             });
         }));
 
 
-        this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
 
         this.setScale(1.25);
         this.PhysicsBody
@@ -110,9 +124,19 @@ export class Drow extends CharacterGameObject {
     }
 
     public enableObject(): void {
-        super.enableObject();
+        super.enableObject(); 
         
-        this._stateMachine.setState(CHARACTER_STATES.HIDDEN_STATE);
+        if (this._isDefeated) {
+            return;
+        }
+
+        if (this._stateMachine.currentStateName === undefined) {
+            this.visible = false;
+            this.scene.time.delayedCall(ENEMY_BOSS_START_INITIAL_DELAY, () => {
+                this.visible = true;
+                this._stateMachine.setState(CHARACTER_STATES.HIDDEN_STATE);
+            });
+        }
     }
 }
 

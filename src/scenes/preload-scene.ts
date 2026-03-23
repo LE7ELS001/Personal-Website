@@ -58,6 +58,14 @@ export class PreloadScene extends Phaser.Scene {
       frameRate: 6,
       repeat: 0,
       delay: 0,
+     });
+    
+    this.anims.create({
+      key: ASSET_KEYS.DAGGER,
+      frames: this.anims.generateFrameNumbers(ASSET_KEYS.DAGGER),
+      frameRate: 16,
+      repeat: -1,
+      delay: 0,
     });
   }
 
