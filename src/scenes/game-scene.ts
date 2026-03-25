@@ -311,7 +311,7 @@ export class GameScene extends Phaser.Scene {
   #createLevel(): void {
     // this.add.image(0, -20, "TEST_BG", 0).setOrigin(0);
     this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_BACKGROUND`], 0).setOrigin(0);
-    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
+    //this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
     
     const map = this.make.tilemap({
       key: ASSET_KEYS[`${this.#levelData.level}_LEVEL`],
@@ -519,7 +519,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  //TODO
+  //create enemies
   #createEnemies(map: Phaser.Tilemaps.Tilemap, layerName: string, roomId: number): void {
     console.log(layerName, roomId);
     const validTileObjects = getTiledEnemyObjectsFromMap(map, layerName);
