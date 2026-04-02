@@ -10,7 +10,7 @@ import { CHEST_REWARD_TO_DIALOG_MAP, CHEST_STATE, DIRECTION, LEVEL_NAME } from '
 import * as CONFIG from '../common/config';
 import { Pot } from '../game-objects/objects/pot';
 import { Chest } from '../game-objects/objects/chest';
-import { ChestState, GameObject, LevelData } from '../common/types';
+import { ChestState, DungeonItem, GameObject, LevelData } from '../common/types';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { exhaustiveGuard, getDirectionOfObjectFromAnotherObject, isArcadePhysicsBody, isLevelName } from '../common/utils';
 import { Crystal } from '../game-objects/objects/crystal';
@@ -25,6 +25,7 @@ import { CHARACTER_STATES } from '../components/state-machine/states/character/c
 import { WeaponComponent } from '../components/game-object/weapon-component';
 import { DataManager } from '../common/data-manager/data-manager';
 import { Drow } from '../game-objects/enemies/boss/drow';
+import { PLAYER_HEALTH_INCREASE_AMOUNT, POT_DAMAGE } from '../common/config';
 
 export class GameScene extends Phaser.Scene {
   #levelData!: LevelData;
@@ -156,6 +157,8 @@ export class GameScene extends Phaser.Scene {
       if (this.#objectByRoomId[roomId] === undefined) {
         return;
       }
+
+      
       
       if (this.#objectByRoomId[roomId].enemyGroup !== undefined) {
         this.physics.add.collider(this.#objectByRoomId[roomId].enemyGroup, this.#enemiesCollisionLayer);
@@ -163,16 +166,41 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.#player, this.#objectByRoomId[roomId].enemyGroup, () => {
           this.#player.hit(DIRECTION.DOWN, 1);
         });
-        this.physics.add.collider(this.#objectByRoomId[roomId].enemyGroup, this.#blockingGroup, (enemy, gameObject) => {
-          if (gameObject instanceof Pot && isArcadePhysicsBody(gameObject.body) && (gameObject.body.velocity.x !== 0 || gameObject.body.velocity.y !== 0)) {
-            const enemyGameObject = enemy as CharacterGameObject;
-            if (enemyGameObject instanceof CharacterGameObject) {
-              enemyGameObject.hit(this.#player.direction, 1);
-              gameObject.break();
-            }
-            return;
-          };
 
+        //use pot to hit enemy 
+        const roomPots = this.#objectByRoomId[roomId].pots;
+        const enemyGroup = this.#objectByRoomId[roomId].enemyGroup;
+
+        if (roomPots.length > 0 && enemyGroup !== undefined) { 
+          this.physics.add.overlap(enemyGroup, roomPots, (enemy, pot) => {
+            if (enemy instanceof Wisp) {
+              return;
+            }
+            const potObj = pot as Pot;
+            const body = potObj.body as Phaser.Physics.Arcade.Body;
+
+            if (body.velocity.x !== 0 || body.velocity.y !== 0) {
+                const enemyGameObject = enemy as CharacterGameObject;
+                
+                
+                enemyGameObject.hit(this.#player.direction, POT_DAMAGE);     
+                potObj.break();
+            }
+        });
+        }
+
+
+        this.physics.add.collider(this.#objectByRoomId[roomId].enemyGroup, this.#blockingGroup, (enemy, gameObject) => {
+          // if (gameObject instanceof Pot && isArcadePhysicsBody(gameObject.body) && (gameObject.body.velocity.x !== 0 || gameObject.body.velocity.y !== 0)) {
+          //   const enemyGameObject = enemy as CharacterGameObject;
+          //   if (enemyGameObject instanceof CharacterGameObject) {
+          //     enemyGameObject.hit(this.#player.direction, 1);
+          //     gameObject.break();
+          //   }
+          //   return;
+          // };
+
+          
           if (gameObject instanceof Crystal) {
             console.log('enemy hit the crystal');
           }
@@ -248,18 +276,6 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-
-    //register collisions between player and blocking game objects
-    // this.physics.add.overlap(this.#player, this.#doorTransitionGroup, (playerObj, doorObj) => {
-    //   this.#handleRoomTransition(doorObj as Phaser.Types.Physics.Arcade.GameObjectWithBody);
-    // });
-
-   
-    
-
-    //add layer collision
-      //this.#collisionLayer.setCollision(this.#collisionLayer.tileset[0].firstgid);
-      //this.physics.add.collider(this.#player, this.#collisionLayer);
     
    
   }
@@ -287,15 +303,35 @@ export class GameScene extends Phaser.Scene {
     //use data manager to keep the door state
     DataManager.instance.updateChestData(this.#currentRoomId, chest.id, true, true);
 
+    //test health increase and attack increase function 
+    if (chest.contents === CHEST_REWARD.HEALTH) {
+      this.#startRewardAnimation(chest);
+      this.#player.increasePlayerMaxLife(PLAYER_HEALTH_INCREASE_AMOUNT);
+
+      return;
+    } 
+    
+    if (chest.contents === CHEST_REWARD.ATTACK) {
+      this.#startRewardAnimation(chest);
+      this.#player.increasePlayerAttack(CONFIG.PLAYER_ATTACK_INCREASE_AMOUNT);
+        return; 
+    }
+
 
     if (chest.contents !== CHEST_REWARD.NOTHING) {
-      InventoryManager.instance.addDungeonItem(this.#levelData.level, chest.contents);
+      InventoryManager.instance.addDungeonItem(this.#levelData.level, chest.contents );
     }
+    this.#startRewardAnimation(chest);
+
+
+  }
+
+  #startRewardAnimation(chest: Chest): void {
     this.#rewardItem
       .setFrame(CHEST_REWARD_TO_TEXTURE_FRAME[chest.contents])
       .setVisible(true)
       .setPosition(chest.x, chest.y);
-    
+
     this.tweens.add({
       targets: this.#rewardItem,
       y: this.#rewardItem.y - 16,
@@ -305,13 +341,12 @@ export class GameScene extends Phaser.Scene {
         this.scene.pause();
       }
     });
-
-  }
+}
 
   #createLevel(): void {
     // this.add.image(0, -20, "TEST_BG", 0).setOrigin(0);
-    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_BACKGROUND`], 0).setOrigin(0);
-    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
+    //this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_BACKGROUND`], 0).setOrigin(0);
+    //this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
     
     const map = this.make.tilemap({
       key: ASSET_KEYS[`${this.#levelData.level}_LEVEL`],
@@ -370,9 +405,9 @@ export class GameScene extends Phaser.Scene {
 
     // get the layer data
     doorLayerNames.forEach((layer) => this.#createDoors(map, layer.name, layer.roomId));
-    switchLayerNames.forEach((layer) => this.#createButtons(map, layer.name, layer.roomId));
+    //switchLayerNames.forEach((layer) => this.#createButtons(map, layer.name, layer.roomId));
     potLayerNames.forEach((layer) => this.#createPots(map, layer.name, layer.roomId));
-    chestLayerNames.forEach((layer) => this.#createChests(map, layer.name, layer.roomId));
+    //chestLayerNames.forEach((layer) => this.#createChests(map, layer.name, layer.roomId));
     enemyLayerNames.forEach((layer) => this.#createEnemies(map, layer.name, layer.roomId));
 
 

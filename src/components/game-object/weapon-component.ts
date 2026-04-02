@@ -33,6 +33,13 @@ export class WeaponComponent extends BaseGameObjectComponent {
         return this.#weapon.baseDamage;
     }
 
+    set weaponDamage(damage: number) {
+        if (this.#weapon !== undefined) {
+            this.#weapon.baseDamage = damage;
+        }
+    }
+
+
     public update(): void {
         if (this.#weapon === undefined) {
             return;

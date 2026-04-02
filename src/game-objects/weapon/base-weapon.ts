@@ -45,6 +45,10 @@ export abstract class BaseWeapon implements Weapon {
         return this._baseDamage;
     }
 
+    set baseDamage(damage: number) {
+        this._baseDamage = damage;
+    }
+
     public abstract attackUp(): void;
     public abstract attackDown(): void;
     public abstract attackLeft(): void;

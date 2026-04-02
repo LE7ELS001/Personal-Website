@@ -151,6 +151,30 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
 
         this._stateMachine.setState(CHARACTER_STATES.HURT_STATE, direction);
     } 
+
+    public increasePlayerMaxLife(amount: number): void {
+        if (!this._isPlayer) {
+            return;
+        }
+        this._lifeComponent.increaseMaxLife(amount);
+        DataManager.instance.updatePlayerMaxHealth(this._lifeComponent.maxLife);
+        DataManager.instance.updatePlayerCurrentHealth(this._lifeComponent.life);
+    }
+
+
+    public increasePlayerAttack(amount: number): void {
+        if (!this._isPlayer) {
+            return;
+        }
+
+        DataManager.instance.updatePlayerAttack(amount);
+        
+        const totalAttack = DataManager.instance.data.baseAttack;
+        const weaponComponent = WeaponComponent.getComponent<WeaponComponent>(this);
+        if (weaponComponent !== undefined && weaponComponent.weapon) {
+            weaponComponent.weaponDamage = totalAttack;
+        }
+    }
     
     public disableObject(): void {
         (this.body as Phaser.Physics.Arcade.Body).enable = false;
@@ -165,6 +189,8 @@ export abstract class CharacterGameObject extends Phaser.GameObjects.Sprite impl
             weaponComponent.weapon.onCollisionCallback();
         }
     }
+
+
 
     public enableObject(): void {
         if (this._isDefeated) {

@@ -49,6 +49,8 @@ export const CHEST_REWARD = {
   MAP: 'MAP',
   COMPASS: 'COMPASS',
   NOTHING: 'NOTHING',
+  HEALTH: 'HEALTH',
+  ATTACK: 'ATTACK'
 } as const;
 
 export const TILED_CHEST_OBJECT_PROPERTY = {

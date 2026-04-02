@@ -31,7 +31,7 @@ export const DUNGEON_ITEM = {
     SMALL_KEY: 'SMALL_KEY',
     BOSS_KEY: 'BOSS_KEY',
     MAP:'MAP',
-    COMPASS:'COMPASS'
+    COMPASS: 'COMPASS',
 } as const 
 
 export const DEFAULT_UI_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -47,5 +47,7 @@ export const CHEST_REWARD_TO_DIALOG_MAP = {
     BOSS_KEY: 'This Key looks so different, maybe it\'s for a special door',
     MAP:'You found the Map of the dungeon',
     COMPASS: 'You found the Compass',
-    NOTHING: '...The chest was empty'
+    NOTHING: '...The chest was empty',
+    HEALTH: 'You found a Heart Container, your health has increased',
+    ATTACK: 'You found a Power Bracelet, your attack has increased',
 } as const 

@@ -1,12 +1,13 @@
 import { Player } from "../../game-objects/player/player";
 import { LEVEL_NAME } from "../common";
-import { PLAYER_START_MAX_HEALTH } from "../config";
+import { PLAYER_ATTACK_DAMAGE, PLAYER_START_MAX_HEALTH } from "../config";
 import { CUSTOM_EVENTS, EVENT_BUS, PLAYER_HEALTH_UPDATE_TYPE, PlayerHealthUpdated, PlayerHealthUpdateType } from "../event-bus";
 import { LevelName } from "../types";
 
 export type PlayerData = {
     currentHealth: number;
     maxHealth: number;
+    baseAttack: number;
     currentArea: {
         name: LevelName;
         startRoomId: number;
@@ -43,10 +44,11 @@ export class DataManager {
             this.#data = {
                 currentHealth: PLAYER_START_MAX_HEALTH,
                 maxHealth: PLAYER_START_MAX_HEALTH,
+                baseAttack: PLAYER_ATTACK_DAMAGE,
                 currentArea: {
                     name: LEVEL_NAME.DUNGEON_1,
-                    startRoomId: 3,
-                    startDoorId:3,
+                    startRoomId: 6,
+                    startDoorId:1,
                 },
                 areaDetails: {
                     DUNGEON_1: {
@@ -120,8 +122,25 @@ export class DataManager {
             currentHealth: health,
             type: healthUpdateType,
         }
-        EVENT_BUS.emit(CUSTOM_EVENTS.PLAYER_HEALTH_UPDATE, dataToPass);
         this.#data.currentHealth = health;
+        EVENT_BUS.emit(CUSTOM_EVENTS.PLAYER_HEALTH_UPDATE, dataToPass);
+    }
+
+    public updatePlayerMaxHealth(maxHealth: number): void {
+        this.#data.maxHealth = maxHealth;
+    }
+
+    public updatePlayerAttack(attack: number): void {
+        const previousAttack = this.#data.baseAttack;
+
+        this.#data.baseAttack += attack;
+
+        EVENT_BUS.emit(CUSTOM_EVENTS.PLAYER_ATTACK_UPDATE, {
+            newAttack: this.#data.baseAttack,
+            previousAttack: previousAttack
+        });
+
+        console.log(`player attack updated, current attack: ${this.data.baseAttack}`, `previous attack: ${previousAttack}`);
     }
 
     #populateDefaultRoomData(roomId: number): void{

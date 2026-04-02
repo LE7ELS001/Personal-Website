@@ -654,7 +654,7 @@
         }, 
         {
          "id":2,
-         "image":"assets\/D02EastPalace.png",
+         "image":"..\/assets\/D02EastPalace.png",
          "locked":true,
          "name":"example",
          "opacity":0,
@@ -1084,7 +1084,7 @@
                                         {
                                          "name":"contents",
                                          "type":"string",
-                                         "value":"COMPASS"
+                                         "value":"HEALTH"
                                         }, 
                                         {
                                          "name":"id",
@@ -2387,7 +2387,7 @@
         {
          "columns":27,
          "firstgid":1,
-         "image":"assets\/Legend_Spider_Dungeon.png",
+         "image":"..\/assets\/Legend_Spider_Dungeon.png",
          "imageheight":848,
          "imagewidth":432,
          "margin":0,
@@ -2400,7 +2400,7 @@
         {
          "columns":1,
          "firstgid":1432,
-         "image":"assets\/collision.png",
+         "image":"..\/assets\/collision.png",
          "imageheight":16,
          "imagewidth":16,
          "margin":0,

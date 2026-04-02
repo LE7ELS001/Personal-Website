@@ -53,16 +53,21 @@ export class UiScene extends Phaser.Scene {
 
       EVENT_BUS.on(CUSTOM_EVENTS.PLAYER_HEALTH_UPDATE, this.updateHealthInHud, this);
       EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
+      //EVENT_BUS.on(CUSTOM_EVENTS.PLAYER_ATTACK_UPDATE, this.showDialog, this);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
           EVENT_BUS.off(CUSTOM_EVENTS.PLAYER_HEALTH_UPDATE, this.updateHealthInHud, this);
           EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
+          //EVENT_BUS.off(CUSTOM_EVENTS.PLAYER_ATTACK_UPDATE, this.showDialog, this);
       });
 
     }
     
     public async updateHealthInHud(data: PlayerHealthUpdated): Promise <void> {
         if (data.type === PLAYER_HEALTH_UPDATE_TYPE.INCREASE) {
+            this.#updateHeartFrame();
             return;
+
+
         }
 
         const healthDifference = data.previousHealth - data.currentHealth;
@@ -82,6 +87,29 @@ export class UiScene extends Phaser.Scene {
             })
             health -= 1;
         }
+    }
+
+     #updateHeartFrame(): void {
+        const { maxHealth, currentHealth } = DataManager.instance.data;
+        const numberOfHeart = Math.floor(maxHealth / 2);
+        const numberOfFullHeart = Math.floor(currentHealth / 2);
+        const isHalfHeart = currentHealth % 2 === 1;
+
+        this.#hearts.forEach((heart, i) => {
+        let frame: string = HEART_TEXTURE_FRAME.NONE;
+        
+        if (i < numberOfFullHeart) {
+            frame = HEART_TEXTURE_FRAME.FULL;
+        } else if (i < numberOfHeart) {
+            frame = HEART_TEXTURE_FRAME.EMPTY;
+        }
+
+        if (isHalfHeart && i === numberOfFullHeart) {
+            frame = HEART_TEXTURE_FRAME.HALF;
+        }
+        
+        heart.setFrame(frame);
+    });
     }
 
     public showDialog(message: string): void {

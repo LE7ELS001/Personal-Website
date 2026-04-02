@@ -142,6 +142,8 @@ export const CHEST_REWARD_TO_TEXTURE_FRAME = {
   MAP: 117,
   COMPASS: 118,
   NOTHING: 126,
+  HEALTH: 114,
+  ATTACK: 96,
 } as const;
 
 export const HEART_ANIMATIONS = {
