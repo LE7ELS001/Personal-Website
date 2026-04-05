@@ -27,6 +27,10 @@ export type DrowConfig = {
 
 export class Drow extends CharacterGameObject {
     #weaponComponent: WeaponComponent;
+
+    public isInvulnerable: boolean = false;
+
+
     constructor(config: DrowConfig) {
         const hurtAnimationConfig = { key: DROW_ANIMATION_KEYS.HIT, repeat: 0, ignoreIfPlaying: true }
         //create animation config for player
@@ -118,10 +122,23 @@ export class Drow extends CharacterGameObject {
         return this.body as Phaser.Physics.Arcade.Body;
     }
 
-      public update(): void {
+    public update(): void {
+        
         super.update();
           this.#weaponComponent.update();
 
+
+        //drow invulnerable when teleport 
+        if (this._stateMachine.currentStateName === CHARACTER_STATES.TELEPORT_STATE || this._stateMachine.currentStateName === CHARACTER_STATES.HIDDEN_STATE) {
+        this.isInvulnerable = true;
+        
+        if (this.alpha !== 0.5) this.setAlpha(0.5); 
+    } else {
+        if (this._stateMachine.currentStateName !== CHARACTER_STATES.HURT_STATE) {
+            this.isInvulnerable = false;
+            if (this.alpha !== 1) this.setAlpha(1);
+        }
+    }
          
           
          

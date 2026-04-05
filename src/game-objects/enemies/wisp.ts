@@ -43,7 +43,7 @@ export class Wisp extends CharacterGameObject {
             currentLife: ENEMY_WISP_MAX_HEALTH,
         });
 
-        this.setAlpha(1);
+        this.setAlpha(0.5);
         this.setBlendMode(Phaser.BlendModes.NORMAL);
 
 
@@ -57,7 +57,7 @@ export class Wisp extends CharacterGameObject {
     targets: this,
     scaleX: ENEMY_WISP_PULSE_ANIMATION_X,
     scaleY: ENEMY_WISP_PULSE_ANIMATION_Y,
-    alpha: { from: 1, to: 0.8 }, 
+    alpha: { from: 0.3, to: 0.7 }, 
     yoyo: true,
     repeat: -1,
     duration: ENEMY_WISP_PULSE_ANIMATION_DURATION,

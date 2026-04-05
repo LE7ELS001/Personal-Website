@@ -19,7 +19,6 @@ html, body {
 
 
 
-/* 包装容器：横向排列侧边栏和游戏 */
 #app-wrapper {
     display: flex;
     flex-direction: row;
@@ -49,7 +48,7 @@ html, body {
 }
 
 .right-sidebar {
-    gap: 20px; /* 两个按钮之间的间距 */
+    gap: 20px; 
 }
 
 .right-sidebar .control-item {
@@ -78,11 +77,10 @@ html, body {
 }
 
 .key-icon-group {
-    /* 🚩 根据你的 2k 屏表现，尝试将宽度调大到 80px - 100px */
     width: 150px; 
     height: auto;
-    image-rendering: pixelated; /* 保持像素锐利 */
-    margin-bottom: 10px; /* 和下方 MOVE 文字的间距 */
+    image-rendering: pixelated;
+    margin-bottom: 10px; 
 }
 
 .control-label, .control-text {
@@ -99,18 +97,43 @@ html, body {
 }
 
 .control-text {
-    margin-top: 0; /* 并排时不设置 top margin */
+    margin-top: 0; 
 }
 
 .key-icon {
-    width: 48px; /* 根据你的图片大小调整，2k屏可以适当大一点 */
+    width: 48px;
     height: auto;
-    image-rendering: pixelated; /* 关键：保持像素锐利 */
+    image-rendering: pixelated;
 }
 
-/* 游戏容器：Phaser 渲染的地方 */
+/* interact key */
+.combo-item {
+    flex-direction: column !important; 
+    align-items: center;
+    gap: 10px;
+}
+
+.combo-keys {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.key-icon-mini {
+    width: 56px; 
+    height: auto;
+    image-rendering: pixelated;
+}
+
+.plus-sign {
+    color: #ffd700;
+    font-family: 'PressStart2P', cursive;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Phaser container */
 #game-container {
-    /* 保持比例，并稍微加点边框质感 */
     border: 4px solid #333;
     height: 85vh; 
     aspect-ratio: 256 / 224;
