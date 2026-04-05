@@ -120,7 +120,11 @@ export class Drow extends CharacterGameObject {
 
       public update(): void {
         super.update();
-        this.#weaponComponent.update();
+          this.#weaponComponent.update();
+
+         
+          
+         
     }
 
     public enableObject(): void {

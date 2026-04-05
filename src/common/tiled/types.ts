@@ -45,6 +45,7 @@ export type TiledChestObject = {
   id: number;
   revealChestTrigger: TrapType;
   requiresBossKey: boolean;
+  isLarge: boolean;
 } & TiledObject;
 
 export type ChestReward = keyof typeof CHEST_REWARD;

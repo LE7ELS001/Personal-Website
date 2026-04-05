@@ -42,12 +42,21 @@ export const DEFAULT_UI_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
     color: '#FFFFFF'
 }
 
+export const COMPLETE_UI_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
+    align: 'center',
+    fontFamily: ASSET_KEYS.FONT_PRESS_START_2P,
+    fontSize: 16,
+    lineSpacing: 10,
+    wordWrap: { width: 220 },
+    color: '#ffd700'
+}
+
 export const CHEST_REWARD_TO_DIALOG_MAP = {
     SMALL_KEY: 'You found a small key, you can use this to unlock a door',
     BOSS_KEY: 'This Key looks so different, maybe it\'s for a special door',
     MAP:'You found the Map of the dungeon',
     COMPASS: 'You found the Compass',
-    NOTHING: '...The chest was empty',
+    NOTHING: 'Slay the eight-legged demons, Return when they fall',
     HEALTH: 'You found a Heart Container, your health has increased',
     ATTACK: 'You found a Power Bracelet, your attack has increased',
 } as const 

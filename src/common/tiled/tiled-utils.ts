@@ -156,7 +156,9 @@ export function getTiledDoorObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerNa
 
   // loop through each object and validate object has properties for the object we are planning to build
   const tiledObjects = getTiledObjectsFromLayer(map, layerName);
+
   tiledObjects.forEach((tiledObject) => {
+
     const doorId = getTiledPropertyByName<number>(tiledObject.properties, TILED_DOOR_OBJECT_PROPERTY.ID);
     const targetDoorId = getTiledPropertyByName<number>(
       tiledObject.properties,
@@ -168,6 +170,7 @@ export function getTiledDoorObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerNa
       tiledObject.properties,
       TILED_DOOR_OBJECT_PROPERTY.TRAP_DOOR_TRIGGER,
     );
+
     const isLevelTransition = getTiledPropertyByName<boolean>(
       tiledObject.properties,
       TILED_DOOR_OBJECT_PROPERTY.IS_LEVEL_TRANSITION,
@@ -176,10 +179,18 @@ export function getTiledDoorObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerNa
       tiledObject.properties,
       TILED_DOOR_OBJECT_PROPERTY.TARGET_LEVEL,
     );
+
+    
     const targetRoomId = getTiledPropertyByName<number>(
       tiledObject.properties,
       TILED_DOOR_OBJECT_PROPERTY.TARGET_ROOM_ID,
     );
+
+  
+
+
+
+    
     if (
       doorId === undefined ||
       targetDoorId === undefined ||
@@ -263,6 +274,8 @@ export function getTiledChestObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerN
       tiledObject.properties,
       TILED_CHEST_OBJECT_PROPERTY.REQUIRES_BOSS_KEY,
     );
+
+    const isLarge = getTiledPropertyByName<boolean>(tiledObject.properties, 'isLarge') ?? false;
     if (
       contents === undefined ||
       id === undefined ||
@@ -279,10 +292,11 @@ export function getTiledChestObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerN
       y: tiledObject.y,
       width: tiledObject.width,
       height: tiledObject.height,
-      id,
+      id, 
       revealChestTrigger,
       contents,
       requiresBossKey,
+      isLarge: isLarge,
     });
   });
 

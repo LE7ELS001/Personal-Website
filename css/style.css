@@ -1,0 +1,133 @@
+@font-face {
+    font-family: 'PressStart2P'; 
+    src: url('../public/assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #121212; 
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+/* 包装容器：横向排列侧边栏和游戏 */
+#app-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* side bar */
+.sidebar {
+
+    padding: 0 80px 40px 80px; 
+    
+    width: auto; 
+    min-width: 200px;
+
+
+    width: 120px; 
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 30px;
+    background-color:#121212; 
+}
+
+.right-sidebar {
+    gap: 20px; /* 两个按钮之间的间距 */
+}
+
+.right-sidebar .control-item {
+    flex-direction: row; 
+    gap: 15px;
+    width: 180px;
+    justify-content: flex-start;
+}
+
+/* control container */
+.control-group, .control-item {
+    background: rgba(30, 30, 30, 0.85);
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #444;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    min-width: 140px; 
+    transition: transform 0.2s;
+
+    position: relative;
+    z-index: 101;
+}
+
+.key-icon-group {
+    /* 🚩 根据你的 2k 屏表现，尝试将宽度调大到 80px - 100px */
+    width: 150px; 
+    height: auto;
+    image-rendering: pixelated; /* 保持像素锐利 */
+    margin-bottom: 10px; /* 和下方 MOVE 文字的间距 */
+}
+
+.control-label, .control-text {
+    color: #ffffff; 
+    font-family: 'PressStart2P', cursive; 
+    font-size: 11px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    text-align: center;
+    text-transform: uppercase;
+
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.control-text {
+    margin-top: 0; /* 并排时不设置 top margin */
+}
+
+.key-icon {
+    width: 48px; /* 根据你的图片大小调整，2k屏可以适当大一点 */
+    height: auto;
+    image-rendering: pixelated; /* 关键：保持像素锐利 */
+}
+
+/* 游戏容器：Phaser 渲染的地方 */
+#game-container {
+    /* 保持比例，并稍微加点边框质感 */
+    border: 4px solid #333;
+    height: 85vh; 
+    aspect-ratio: 256 / 224;
+
+    background: #1a1a1a;
+
+    box-shadow: 
+        inset 2px 2px 0px #444,   
+        inset -2px -2px 0px #000, 
+        0 0 20px rgba(0, 0, 0, 0.5); 
+        
+    border-radius: 4px;
+}
+
+
+canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+

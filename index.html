@@ -2,21 +2,34 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Junming Personal Website</title>
-		<style>
-      html,
-      body,
-      .container {
-        margin: 0px;
-        height: 100vh;
-        width: 100vw;
-        overflow: hidden;
-        background: #d7d7d7;
-      }
-    </style>
+		<title>CART315</title>
+    <link rel="stylesheet" href="css/style.css">
 	</head>
 	<body>
-		<div class="container" id="game-container"></div>
+    <div id="app-wrapper">
+        <div class="sidebar left-sidebar">
+          <div class="sidebar left-sidebar">
+        <div class="control-group">
+            <img src="public/assets/images/keyboard/move.png" alt="WASD" class="key-icon-group">
+            <p class="control-label">MOVE</p>
+        </div>
+    </div>
+            </div>
+
+        <div id="game-container"></div>
+
+        <div class="sidebar right-sidebar">
+          <div class="control-item">
+            <img src="public/assets/images/keyboard/attack.png" alt="J" class="key-icon">
+            <span class="control-text">ATTACK</span>
+        </div>
+        <div class="control-item">
+            <img src="public/assets/images/keyboard/interact.png" alt="K" class="key-icon">
+            <span class="control-text">INTERACT</span>
+        </div>
+        </div>
+    </div>
+		<!-- <div class="container" id="game-container"></div> -->
 		<script type="module" src="/src/main.ts"></script>
 	</body>
 </html>

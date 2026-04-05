@@ -16,10 +16,12 @@ export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObje
     #id: number;
     #revealTrigger: TrapType;
     #contents: ChestReward;
+    #isLarge: boolean;
 
 
     constructor(scene:Phaser.Scene, config: TiledChestObject, chestState = CHEST_STATE.HIDDEN) {
-        const frameKey = config.requiresBossKey ? CHEST_FRAME_KEYS.BIG_CHEST_CLOSED : CHEST_FRAME_KEYS.SMALL_CHEST_CLOSED
+        const isLargeTexture = config.isLarge || config.requiresBossKey;
+        const frameKey = isLargeTexture ? CHEST_FRAME_KEYS.BIG_CHEST_CLOSED : CHEST_FRAME_KEYS.SMALL_CHEST_CLOSED;
         super(scene, config.x, config.y, ASSET_KEYS.DUNGEON_OBJECTS, frameKey);
 
         //add object to scene and enable physical feature
@@ -33,8 +35,9 @@ export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObje
         this.#id = config.id;
         this.#revealTrigger = config.revealChestTrigger;
         this.#contents = config.contents;
+        this.#isLarge = config.isLarge;
 
-        if (this.#isBossKeyChest) {
+        if (this.#isBossKeyChest || this.#isLarge) {
             (this.body as Phaser.Physics.Arcade.Body).setSize(32, 24).setOffset(0, 8);
         }
 
@@ -88,7 +91,7 @@ export class Chest extends Phaser.Physics.Arcade.Image implements CustomGameObje
             }
 
             this.#state = CHEST_STATE.OPEN
-            const frameKey = this.#isBossKeyChest ? CHEST_FRAME_KEYS.BIG_CHEST_OPEN : CHEST_FRAME_KEYS.SMALL_CHEST_OPEN
+            const frameKey = (this.#isBossKeyChest || this.#isLarge) ? CHEST_FRAME_KEYS.BIG_CHEST_OPEN : CHEST_FRAME_KEYS.SMALL_CHEST_OPEN;
         this.setFrame(frameKey);
         InteractiveObjectComponent.removeComponent(this);
     }

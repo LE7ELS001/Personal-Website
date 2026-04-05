@@ -4,6 +4,7 @@ import { PreloadScene } from './scenes/preload-scene';
 import { GameScene } from './scenes/game-scene';
 import { UiScene } from './scenes/ui-scene';
 import { GameOverScene } from './scenes/game-over-scene';
+import { GameCompleteScene } from './scenes/game-complete-scene';
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.WEBGL,
@@ -15,8 +16,9 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     height: 224,
     // width: 400,
     // height: 224,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.NO_CENTER,
+    // mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
   },
   backgroundColor: '#000000',
   physics: {
@@ -34,5 +36,6 @@ game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);
 game.scene.add(SCENE_KEYS.GAME_SCENE, GameScene);
 game.scene.add(SCENE_KEYS.UI_SCENE, UiScene);
 game.scene.add(SCENE_KEYS.GAME_OVER_SCENE, GameOverScene);
+game.scene.add(SCENE_KEYS.GAME_COMPLETE_SCENE, GameCompleteScene);
 game.scene.start(SCENE_KEYS.PRELOAD_SCENE);
 

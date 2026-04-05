@@ -345,8 +345,8 @@ export class GameScene extends Phaser.Scene {
 
   #createLevel(): void {
     // this.add.image(0, -20, "TEST_BG", 0).setOrigin(0);
-    //this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_BACKGROUND`], 0).setOrigin(0);
-    //this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
+    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_BACKGROUND`], 0).setOrigin(0);
+    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
     
     const map = this.make.tilemap({
       key: ASSET_KEYS[`${this.#levelData.level}_LEVEL`],
@@ -396,6 +396,7 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
+    
     //get the layer name 
     const switchLayerNames = rooms.filter((layer) => layer.name.endsWith(`/${TILED_LAYER_NAMES.SWITCHES}`));
     const potLayerNames = rooms.filter((layer) => layer.name.endsWith(`/${TILED_LAYER_NAMES.POTS}`));
@@ -405,9 +406,9 @@ export class GameScene extends Phaser.Scene {
 
     // get the layer data
     doorLayerNames.forEach((layer) => this.#createDoors(map, layer.name, layer.roomId));
-    //switchLayerNames.forEach((layer) => this.#createButtons(map, layer.name, layer.roomId));
+    switchLayerNames.forEach((layer) => this.#createButtons(map, layer.name, layer.roomId));
     potLayerNames.forEach((layer) => this.#createPots(map, layer.name, layer.roomId));
-    //chestLayerNames.forEach((layer) => this.#createChests(map, layer.name, layer.roomId));
+    chestLayerNames.forEach((layer) => this.#createChests(map, layer.name, layer.roomId));
     enemyLayerNames.forEach((layer) => this.#createEnemies(map, layer.name, layer.roomId));
 
 
@@ -424,7 +425,6 @@ export class GameScene extends Phaser.Scene {
 
   
   #setUpPlayer(): void {
-
     //set up player starting position
     const startingDoor = this.#objectByRoomId[this.#levelData.roomId].doorMap[this.#levelData.doorId];
     const playerStartPosition = {
@@ -478,7 +478,9 @@ export class GameScene extends Phaser.Scene {
   }
   
   #createDoors(map: Phaser.Tilemaps.Tilemap, layerName: string, roomId: number): void {
-    console.log(layerName, roomId);
+
+
+    // console.log(layerName, roomId);
     const validTileObjects = getTiledDoorObjectsFromMap(map, layerName);
     
     validTileObjects.forEach((tileObejct) => {
@@ -602,6 +604,22 @@ export class GameScene extends Phaser.Scene {
 
 
     const door = this.#objectByRoomId[this.#currentRoomId].doorMap[doorTrigger.name] as Door;
+
+    //player finish playing 
+    if (door.targetRoomId === 900) {
+
+      if (doorTrigger.body) {
+            doorTrigger.body.enable = false; 
+      }
+      
+      this.scene.stop(SCENE_KEYS.UI_SCENE);
+        this.cameras.main.fadeOut(1000, 0, 0, 0); 
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+            this.scene.start(SCENE_KEYS.GAME_COMPLETE_SCENE);
+        });
+      
+        return; 
+    }
 
     //transition to another level 
     const modifiedLevelName = door.targetLevel.toUpperCase();

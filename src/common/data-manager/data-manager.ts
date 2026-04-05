@@ -47,8 +47,8 @@ export class DataManager {
                 baseAttack: PLAYER_ATTACK_DAMAGE,
                 currentArea: {
                     name: LEVEL_NAME.DUNGEON_1,
-                    startRoomId: 6,
-                    startDoorId:1,
+                    startRoomId: 1,
+                    startDoorId:99,
                 },
                 areaDetails: {
                     DUNGEON_1: {

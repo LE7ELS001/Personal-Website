@@ -18,17 +18,31 @@ export class DrowTeleportState extends BaseCharacterState {
 
     public onEnter(): void {
         this._gameObject.invulnerableComponent.invulnerable = true;
+
+        //get camera location 
+        const camera = this._gameObject.scene.cameras.main;
+        const camX = camera.worldView.x;
+        const camY = camera.worldView.y;
+
+        // use camera location and possible teleport location to determine where to teleport
+        const dynamicLocations = [
+            new Phaser.Math.Vector2(camX + 128, camY + 50),  
+            new Phaser.Math.Vector2(camX + 54, camY + 150),  
+            new Phaser.Math.Vector2(camX + 202, camY + 150)  
+        ];
+
         const timeEvent = this._gameObject.scene.time.addEvent({
             delay: ENEMY_BOSS_TELEPORT_INITIAL_STATE_DURATION,
             callback: () => {
                 if (timeEvent.getOverallProgress() === 1) {
-                    this.#handleTeleportFinished();
+                    this.#handleTeleportFinished(dynamicLocations);
                     return;
                 }
                 this._gameObject.direction = DIRECTION.DOWN;
                 this._gameObject.animationComponent.playAnimation(`IDLE_${this._gameObject.direction}`);
                 const location =
-                    this.#possibleTeleportLocation[timeEvent.repeatCount % this.#possibleTeleportLocation.length];
+                    dynamicLocations[timeEvent.repeatCount % dynamicLocations.length];
+                    //this.#possibleTeleportLocation[timeEvent.repeatCount % this.#possibleTeleportLocation.length];
                 this._gameObject.setPosition(location.x, location.y);
             },
             callbackScope: this,
@@ -37,12 +51,12 @@ export class DrowTeleportState extends BaseCharacterState {
         
     }
 
-    #handleTeleportFinished(): void {
+    #handleTeleportFinished(dynamicLocations: Phaser.Math.Vector2[]): void {
         this._gameObject.visible = false;
         this._gameObject.scene.time.delayedCall(ENEMY_BOSS_TELEPORT_STATE_FINISHED_DURATION, ()=> 
         {
-            // const randomLocaton = Phaser.Utils.Array.GetRandom(this.#possibleTeleportLocation);
-            const randomLocaton = this.#possibleTeleportLocation[2];
+            const randomLocaton = Phaser.Utils.Array.GetRandom(dynamicLocations);
+            //const randomLocaton = this.#possibleTeleportLocation[2];
             this._gameObject.setPosition(randomLocaton.x, randomLocaton.y);
             this._gameObject.visible = true;
             this._gameObject.invulnerableComponent.invulnerable = false;
