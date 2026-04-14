@@ -8,6 +8,8 @@ import { InputComponent } from "../../../input/input-component";
 import { CollidingObjectsComponent } from "../../../game-object/colliding-objects-components";
 import { InteractiveObjectComponent } from "../../../game-object/interactive-object-component";
 import { BaseMoveState } from "./base-move-state";
+import { Player } from "../../../../game-objects/player/player";
+import { Crystal } from "../../../../game-objects/objects/crystal";
 
 export class MoveState extends BaseMoveState {
     constructor(gameObject: CharacterGameObject) {
@@ -16,23 +18,37 @@ export class MoveState extends BaseMoveState {
 
     public onUpdate(): void {
         const controls = this._gameObject.controls;
+        const player = this._gameObject as Player;
 
          if (controls.isAttackKeyJustDown) {
             this._stateMachine.setState(CHARACTER_STATES.ATTACK_STATE);
             return;
         }
 
-         if (this.isNoInputMovemnt(controls)) {
-             this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
-             return;
-        }
-
-        // if player interacted with an object, then change the state 
-        if (this.#checkIfObjectWasInteractedWith(controls)) {
+        //crystal interaction has higher priority than movement
+        if (this.#tryCrystalInteraction(controls)) {
+            player.moveTarget = null;
             return;
         }
 
-        this.handleCharacterMovement();
+
+        // if player interacted with an object, then change the state 
+        if (this.#checkIfObjectWasInteractedWith(controls)) {
+            player.moveTarget = null;
+            return;
+        }
+
+        // reset to idle state
+        const hasKeyboardInput = !this.isNoInputMovemnt(controls);
+        const hasMouseTarget = player.moveTarget !== null;
+
+        if (!hasMouseTarget && !hasKeyboardInput) {
+            this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
+            return;
+        }
+
+        this.handleIntergratedMovement(player, controls);
+        //this.handleCharacterMovement();
 
     }
 
@@ -83,7 +99,7 @@ export class MoveState extends BaseMoveState {
         if (interactiveObjectComponent.objectType === INTERACTIVE_OBJECT_TYPE.OPEN_MY_PORTFOLIO)
         {
             this._stateMachine.setState(CHARACTER_STATES.INTERACT_WITH_CRYSTAL_STATE, collisionObject);
-            return true;
+            return false;
         }
 
         //check if the object is AUTO?
@@ -93,5 +109,37 @@ export class MoveState extends BaseMoveState {
         }
 
         exhaustiveGuard(interactiveObjectComponent.objectType);
+    }
+
+    //crystal interaction function
+    #tryCrystalInteraction(controls: InputComponent): boolean {
+
+        if (!controls.isActionKeyJustDown) {
+            return false;
+        }
+
+        const scene = this._gameObject.scene;
+        
+        // 
+        const crystals = scene.children.list.filter(child => child instanceof Crystal) as Crystal[];
+
+        // 寻找一个符合互动条件（距离足够近，文字已弹出）的水晶
+        const targetCrystal = crystals.find(crystal => {
+            const comp = InteractiveObjectComponent.getComponent<InteractiveObjectComponent>(crystal);
+            return comp && comp.canInteractWith(); // 这里的 canInteractWith 在 Crystal.ts 里已经是 () => this.#isPlayerNear
+        });
+
+        if (targetCrystal) {
+            const comp = InteractiveObjectComponent.getComponent<InteractiveObjectComponent>(targetCrystal)!;
+            
+            // 执行 Crystal 的互动逻辑
+            comp.interact();
+
+            // 切换到交互动画状态
+            this._stateMachine.setState(CHARACTER_STATES.INTERACT_WITH_CRYSTAL_STATE, targetCrystal);
+            return true;
+        }
+
+        return false;
     }
 }

@@ -19,7 +19,7 @@ export class InteractCrystalState extends BaseCharacterState {
 
         this._gameObject.animationComponent.playAnimation(`LIFT_${this._gameObject.direction}`, () => {
             console.log('open portfolio')
-            EVENT_BUS.emit(CUSTOM_EVENTS.OPENED_PORTFOLIO, crystal);
+            EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_PORTFOLIO, crystal);
             this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
         });
     }

@@ -8,6 +8,8 @@ import { CharacterGameObject } from "../../../../game-objects/common/character-g
 import { InputComponent } from "../../../input/input-component";
 import { CollidingObjectsComponent } from "../../../game-object/colliding-objects-components";
 import { InteractiveObjectComponent } from "../../../game-object/interactive-object-component";
+import { Player } from "../../../../game-objects/player/player";
+import { PLAYER_SPEED } from "../../../../common/config";
 
 export abstract class BaseMoveState extends BaseCharacterState {
     protected moveAnimationPrefix: 'WALK' | 'WALK_HOLD';
@@ -22,6 +24,35 @@ export abstract class BaseMoveState extends BaseCharacterState {
        return (!controls.isLeftDown && !controls.isRightDown && !controls.isUpDown && !controls.isDownDown || controls.isMovementLocked)   
     }
 
+
+    protected handleIntergratedMovement(player: Player, controls: InputComponent): void {
+
+        //keyboard input first 
+        if (!this.isNoInputMovemnt(controls)) {
+            player.moveTarget = null;
+            this.handleCharacterMovement();
+            return;
+        }
+
+        //mouse input 
+        if (player.moveTarget) {
+            const distance = Phaser.Math.Distance.Between(
+                player.x, player.y,
+                player.moveTarget.x, player.moveTarget.y
+            );
+
+            if (distance < 4) {
+                if (player.body) {
+                    (player.body as Phaser.Physics.Arcade.Body).setVelocity(0);
+                }
+                player.moveTarget = null;
+                this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
+            } else {
+               this._gameObject.scene.physics.moveToObject(player, player.moveTarget, PLAYER_SPEED);
+                this.#updateDirectionFromTarget(player);
+            }
+        }
+    }
 
     protected handleCharacterMovement(): void {
         const controls = this._gameObject.controls;
@@ -88,6 +119,28 @@ export abstract class BaseMoveState extends BaseCharacterState {
     protected updateDirection(direction: Direction): void {
         this._gameObject.direction = direction;
         this._gameObject.animationComponent.playAnimation(`${this.moveAnimationPrefix}_${this._gameObject.direction}`);
+    }
+
+
+    #updateDirectionFromTarget(player: Player): void {
+        if (!player.moveTarget) return;
+
+        const dx = player.moveTarget.x - player.x;
+        const dy = player.moveTarget.y - player.y;
+
+        let targetDirection: Direction;
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            
+            targetDirection = dx > 0 ? DIRECTION.RIGHT : DIRECTION.LEFT;
+            this._gameObject.setFlipX(dx <= 0); 
+        } else {
+            
+            targetDirection = dy > 0 ? DIRECTION.DOWN : DIRECTION.UP;
+        }
+
+        
+        this.updateDirection(targetDirection);
     }
 
 }

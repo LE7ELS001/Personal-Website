@@ -17,7 +17,7 @@ import { Crystal } from '../game-objects/objects/crystal';
 import { MoveState } from '../components/state-machine/states/character/move-state';
 import { TiledRoomObject } from '../common/tiled/types';
 import { CHEST_REWARD, DOOR_TYPE, SWITCH_ACTION, SWITCH_TEXTURE, TILED_LAYER_NAMES, TILED_SWITCH_OBJECT_PROPERTY, TRAP_TYPE } from '../common/tiled/common';
-import { getAllLayerNamesWithPrefix, getTiledChestObjectsFromMap, getTiledDoorObjectsFromMap, getTiledEnemyObjectsFromMap, getTiledPotObjectsFromMap, getTiledRoomObjectsFromMap, getTiledSwitchObjectsFromMap } from '../common/tiled/tiled-utils';
+import { getAllLayerNamesWithPrefix, getTiledChestObjectsFromMap, getTiledCrystalObjectsFromMap, getTiledDoorObjectsFromMap, getTiledEnemyObjectsFromMap, getTiledPotObjectsFromMap, getTiledRoomObjectsFromMap, getTiledSwitchObjectsFromMap } from '../common/tiled/tiled-utils';
 import { Door } from '../game-objects/objects/door';
 import { Button } from '../game-objects/objects/button';
 import { InventoryManager } from '../components/inventory/inventory-manager';
@@ -26,6 +26,7 @@ import { WeaponComponent } from '../components/game-object/weapon-component';
 import { DataManager } from '../common/data-manager/data-manager';
 import { Drow } from '../game-objects/enemies/boss/drow';
 import { PLAYER_HEALTH_INCREASE_AMOUNT, POT_DAMAGE } from '../common/config';
+import { initPortfolioUI, openModal } from '../../src/portfolioUI';
 
 export class GameScene extends Phaser.Scene {
   #levelData!: LevelData;
@@ -40,9 +41,12 @@ export class GameScene extends Phaser.Scene {
       switches: Button[],
       pots: Pot[],
       chests: Chest[],
+      crystals: Crystal[],
       enemyGroup?: Phaser.GameObjects.Group,
       room: TiledRoomObject;
     };
+
+  
   };
 
   #collisionLayer!: Phaser.Tilemaps.TilemapLayer;
@@ -52,7 +56,11 @@ export class GameScene extends Phaser.Scene {
   #lockedDoorGroup!: Phaser.GameObjects.Group;
   #switchesGroup!: Phaser.GameObjects.Group;
   #rewardItem!: Phaser.GameObjects.Image;
+  #crystalsGroup!: Phaser.GameObjects.Group;
 
+  //mouse click to move character 
+  #moveTarget: Phaser.Math.Vector2 | null = null;
+  #moveSpeed: number = 160; // 移动速度
 
   constructor() {
     super({
@@ -78,9 +86,13 @@ export class GameScene extends Phaser.Scene {
 
     this.#createLevel();
 
+
     if (this.#collisionLayer === undefined || this.#enemiesCollisionLayer === undefined) {
       console.log('Mission collision layer')
       return;
+
+
+      
     }
 
 
@@ -88,14 +100,27 @@ export class GameScene extends Phaser.Scene {
     this.#setUpPlayer();
     this.#setUpCamera();
 
+     //mouse to move player 
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+    this.#player.moveTarget = new Phaser.Math.Vector2(pointer.worldX, pointer.worldY);
+    
+    if (this.#player.stateMachine.currentStateName === CHARACTER_STATES.IDLE_STATE) {
+            this.#player.stateMachine.setState(CHARACTER_STATES.MOVE_STATE);
+        }
+    });
+
+    
+
     this.#rewardItem = this.add.image(0, 0, ASSET_KEYS.UI_ICONS, 0).setVisible(false).setOrigin(0, 1);
 
 
+    //initialize portfolioUI
+    initPortfolioUI(this.events);
 
     this.#registerColliders();
     this.#registerCustomEvents();
 
-    this.scene.launch(SCENE_KEYS.UI_SCENE);
+    //this.scene.launch(SCENE_KEYS.UI_SCENE);
   } 
 
 
@@ -281,6 +306,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   #registerCustomEvents(): void {
+    EVENT_BUS.on(CUSTOM_EVENTS.SHOW_PORTFOLIO, this.#handleOpenPortfolio, this);
+    EVENT_BUS.on(CUSTOM_EVENTS.PORTFOLIO_CLOSED, this.#handleClosePortfolio, this);
     EVENT_BUS.on(CUSTOM_EVENTS.OEPNED_CHEST, this.#handleOpenChest, this);
     EVENT_BUS.on(CUSTOM_EVENTS.ENEMY_DESTROYED, this.#checkForAllEnemiesAreDefeated, this);
     EVENT_BUS.on(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
@@ -294,6 +321,8 @@ export class GameScene extends Phaser.Scene {
       EVENT_BUS.off(CUSTOM_EVENTS.PLAYER_DEFEATED, this.#handlePlayerDefeatedEvent, this);
       EVENT_BUS.off(CUSTOM_EVENTS.DIALOG_CLOSE, this.#handleDialogClose, this);
       EVENT_BUS.off(CUSTOM_EVENTS.BOSS_DEFEATED, this.#handleBossDefeated, this);
+      EVENT_BUS.off(CUSTOM_EVENTS.SHOW_PORTFOLIO, this.#handleOpenPortfolio, this);
+    EVENT_BUS.off(CUSTOM_EVENTS.PORTFOLIO_CLOSED, this.#handleClosePortfolio, this);
 
 
     })
@@ -346,6 +375,8 @@ export class GameScene extends Phaser.Scene {
   #createLevel(): void {
     // this.add.image(0, -20, "TEST_BG", 0).setOrigin(0);
     this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_BACKGROUND`], 0).setOrigin(0);
+    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_MIDDLEGROUND`], 0).setOrigin(0);
+    this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_MIDDLEGROUND_2`], 0).setOrigin(0);
     this.add.image(0, 0, ASSET_KEYS[`${this.#levelData.level}_FOREGROUND`], 0).setOrigin(0).setDepth(2);
     
     const map = this.make.tilemap({
@@ -383,6 +414,7 @@ export class GameScene extends Phaser.Scene {
     this.#blockingGroup = this.add.group([]);
     this.#lockedDoorGroup = this.add.group([]);
     this.#switchesGroup = this.add.group([]);
+    this.#crystalsGroup = this.add.group([]);
 
 
     this.#createRooms(map, TILED_LAYER_NAMES.ROOMS);
@@ -403,13 +435,14 @@ export class GameScene extends Phaser.Scene {
     const doorLayerNames = rooms.filter((layer) => layer.name.endsWith(`/${TILED_LAYER_NAMES.DOORS}`));
     const chestLayerNames = rooms.filter((layer) => layer.name.endsWith(`/${TILED_LAYER_NAMES.CHESTS}`));
     const enemyLayerNames = rooms.filter((layer) => layer.name.endsWith(`/${TILED_LAYER_NAMES.ENEMIES}`));
-
+    const crystalLayerNames = rooms.filter((layer) => layer.name.endsWith(`/${TILED_LAYER_NAMES.CRYSTALS}`));
     // get the layer data
     doorLayerNames.forEach((layer) => this.#createDoors(map, layer.name, layer.roomId));
     switchLayerNames.forEach((layer) => this.#createButtons(map, layer.name, layer.roomId));
     potLayerNames.forEach((layer) => this.#createPots(map, layer.name, layer.roomId));
     chestLayerNames.forEach((layer) => this.#createChests(map, layer.name, layer.roomId));
     enemyLayerNames.forEach((layer) => this.#createEnemies(map, layer.name, layer.roomId));
+    crystalLayerNames.forEach((layer) => this.#createCrystals(map, layer.name, layer.roomId));
 
 
 
@@ -472,7 +505,7 @@ export class GameScene extends Phaser.Scene {
         room: tiledObject,
         chestMap: {},
         doorMap: {},
-
+        crystals: [],
       };
     });
   }
@@ -512,6 +545,25 @@ export class GameScene extends Phaser.Scene {
   
   }
 
+  #createCrystals(map: Phaser.Tilemaps.Tilemap, layerName: string, roomId: number): void { 
+    const validTileObjects = getTiledCrystalObjectsFromMap(map, layerName);
+
+    validTileObjects.forEach((tileObject) => {
+        const crystal = new Crystal({
+            scene: this,
+            position: { x: tileObject.x, y: tileObject.y },
+            assetKey: tileObject.assetKey,
+            portfolioId: tileObject.portfolioId,
+        });
+
+        
+        this.#objectByRoomId[roomId].crystals.push(crystal);
+        this.#crystalsGroup.add(crystal);
+        this.#blockingGroup.add(crystal);
+    });
+
+  }
+
 
   #createButtons(map: Phaser.Tilemaps.Tilemap, layerName: string, roomId: number): void {
     const validTileObjects = getTiledSwitchObjectsFromMap(map, layerName);
@@ -521,6 +573,8 @@ export class GameScene extends Phaser.Scene {
       this.#switchesGroup.add(button);
     });
   }
+
+
 
 
 
@@ -759,6 +813,37 @@ export class GameScene extends Phaser.Scene {
       
     }
 
+  }
+
+  /*
+  * open and close portfolio
+  */
+  
+  //hanlde open portfolio event 
+  #handleOpenPortfolio(portfolioId: string): void {
+    console.log(`[GameScene] is showing portfolio of ${portfolioId}`);
+
+    //stop the game 
+    this.scene.pause();
+    this.physics.world.pause();
+
+    //stop the player 
+    this.#player.moveTarget = null; 
+    if (this.#player.body && isArcadePhysicsBody(this.#player.body)) {
+      this.#player.body.setVelocity(0);
+    } 
+
+    //open UI
+    openModal(portfolioId);
+  }
+
+  //handle close portfolio event 
+  #handleClosePortfolio(): void {
+    console.log(`[GameScene] is closing portfolio`);
+
+    //resume the game
+    this.scene.resume();
+    this.physics.world.resume();
   }
 
   #checkForAllEnemiesAreDefeated(): void {

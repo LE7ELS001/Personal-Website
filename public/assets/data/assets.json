@@ -155,15 +155,66 @@
       }
     ]
   },
+   {
+    "path": "assets/images/levels/portfolio",
+    "files": [
+      {
+        "type": "image",
+        "key": "PORTFOLIO_BACKGROUND",
+        "url": "portfolio_background.png"
+      },
+      {
+        "type": "image",
+        "key": "PORTFOLIO_FOREGROUND",
+        "url": "portfolio_foreground.png"
+      },
+      {
+        "type": "image",
+        "key": "PORTFOLIO_MIDDLEGROUND",
+        "url": "portfolio_middleground.png"
+      },
+      {
+        "type": "image",
+        "key": "PORTFOLIO_MIDDLEGROUND_2",
+        "url": "portfolio_middleground_2.png"
+      },
+      {
+        "type": "tilemapTiledJSON",
+        "key": "PORTFOLIO_LEVEL",
+        "url": "portfolio.json"
+      }
+    ]
+  },
   {
-  "path": "assets/images/crystal", 
+  "path": "assets/images/portfolioObject", 
   "files": [
+    
     {
       "type": "aseprite",
-      "key": "BLUE_CRYSTAL",
-      "textureURL": "Blue_Crystal.png",
-      "atlasURL": "Blue_Crystal.json"
+      "key": "controller",
+      "textureURL": "controller.png",
+      "atlasURL": "controller.json"
+    },
+    {
+      "type": "aseprite",
+      "key": "map",
+      "textureURL": "map.png",
+      "atlasURL": "map.json"
+    },
+    {
+      "type": "aseprite",
+      "key": "earth",
+      "textureURL": "earth.png",
+      "atlasURL": "earth.json"
+    },
+    {
+      "type": "aseprite",
+      "key": "book",
+      "textureURL": "book.png",
+      "atlasURL": "book.json"
     }
+
   ]
+  
 }
 ]

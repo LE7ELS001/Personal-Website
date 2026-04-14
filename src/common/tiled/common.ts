@@ -11,6 +11,7 @@ export const TILED_LAYER_NAMES = {
   ENEMIES: 'enemies',
   COLLISION: 'collision',
   ENEMY_COLLISION: 'enemy_collision',
+  CRYSTALS: 'crystals',
 } as const;
 
 export const TILED_TILESET_NAMES = {

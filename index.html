@@ -10,30 +10,65 @@
         <div class="sidebar left-sidebar">
           <div class="sidebar left-sidebar">
         <div class="control-group">
-            <img src="public/assets/images/keyboard/move.png" alt="WASD" class="key-icon-group">
-            <p class="control-label">MOVE</p>
+            <img src="public/assets/images/keyboard/Mouse2.png" alt="WASD" class="key-icon-group">
+            <p class="control-label"></p>
         </div>
     </div>
             </div>
 
         <div id="game-container"></div>
 
+
+
+        <div id="portfolio-modal" class="modal-overlay hidden">
+        <div class="book-background">
+            <div class="modal-container">
+
+                <!-- 顶部控制栏 -->
+                <div class="modal-controls">
+                    <div class="back-control hidden" id="modal-back-btn">
+                        <button class="back-btn"></button>
+                        <span class="back-text">BACK</span>
+                    </div>
+
+                    <button class="close-btn" id="modal-close-btn"></button>
+                </div>
+
+                <!-- 视图 A：项目列表 -->
+                <div id="view-gallery">
+                    <div class="modal-header">
+                        <h2 id="gallery-title">LEVEL DESIGN</h2>
+                    </div>
+                    <!-- 修正点：移除了原本冗余的 category-title -->
+                    <div class="project-gallery" id="project-gallery">
+                    </div>
+                </div>
+
+                <!-- 视图 B：详情页面 -->
+                <div id="view-detail" class="hidden hidden-right">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
         <div class="sidebar right-sidebar">
           <div class="control-item">
-            <img src="public/assets/images/keyboard/attack.png" alt="J" class="key-icon">
-            <span class="control-text">ATTACK</span>
+            <img src="public/assets/images/keyboard/move2.png" alt="ARROW KEYS" class="key-icon">
         </div>
         <div class="control-item combo-item">
         <div class="combo-keys">
-            <img src="public/assets/images/keyboard/move.png" class="key-icon-mini">
-            <span class="plus-sign">+</span>
-            <img src="public/assets/images/keyboard/interact.png" class="key-icon-mini">
+            <img src="public/assets/images/keyboard/space.png" class="key-icon-mini">
         </div>
-        <span class="control-text">INTERACT</span>
     </div>
         </div>
     </div>
 		<!-- <div class="container" id="game-container"></div> -->
 		<script type="module" src="/src/main.ts"></script>
+        <script type="module" src="/src/portfolioData.ts"></script>
+        <script type="module" src="/src/portfolioUI.ts"></script>
 	</body>
 </html>

@@ -1,0 +1,98 @@
+{ "frames": {
+   "0": {
+    "frame": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "1": {
+    "frame": { "x": 27, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "2": {
+    "frame": { "x": 54, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "3": {
+    "frame": { "x": 81, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "4": {
+    "frame": { "x": 108, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "5": {
+    "frame": { "x": 135, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "6": {
+    "frame": { "x": 162, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "7": {
+    "frame": { "x": 189, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "8": {
+    "frame": { "x": 216, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   },
+   "9": {
+    "frame": { "x": 243, "y": 0, "w": 27, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 27, "h": 26 },
+    "sourceSize": { "w": 27, "h": 26 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.x-dev",
+  "format": "RGBA8888",
+  "size": { "w": 270, "h": 26 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "blue_shining", "from": 0, "to": 9, "direction": "forward", "color": "#000000ff" }
+  ],
+  "layers": [
+   { "name": "Sprite Sheet", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

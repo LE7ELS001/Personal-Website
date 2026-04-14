@@ -8,7 +8,7 @@ interface WASDKeys {
 }
 
 export class KeyboardComponent extends InputComponent { 
-    //#cursorkeys: Phaser.Types.Input.Keyboard.CursorKeys;
+    #cursorkeys: Phaser.Types.Input.Keyboard.CursorKeys;
     #wasdKeys: WASDKeys;
     #attackKey: Phaser.Input.Keyboard.Key;
     #actionKey: Phaser.Input.Keyboard.Key;
@@ -16,7 +16,7 @@ export class KeyboardComponent extends InputComponent {
     
     constructor(keyboardPlugin: Phaser.Input.Keyboard.KeyboardPlugin) {
         super();
-        //this.#cursorkeys = keyboardPlugin.createCursorKeys();
+        this.#cursorkeys = keyboardPlugin.createCursorKeys();
 
         this.#wasdKeys = keyboardPlugin.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -26,7 +26,7 @@ export class KeyboardComponent extends InputComponent {
         }) as WASDKeys;
 
         this.#attackKey =keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.J);
-        this.#actionKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.K);
+        this.#actionKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.#enterKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
         //this.#cursorkeys.up.isDown
@@ -34,34 +34,34 @@ export class KeyboardComponent extends InputComponent {
     }
 
     get isUpDown(): boolean {
-        //return this.#cursorkeys.up.isDown;
-        return this.#wasdKeys.up.isDown;
+        return this.#cursorkeys.up.isDown;
+        //return this.#wasdKeys.up.isDown;
     }
 
         get isUpJustDown(): boolean {
-            //return Phaser.Input.Keyboard.JustDown(this.#cursorkeys.up);
-            return Phaser.Input.Keyboard.JustDown(this.#wasdKeys.up);
+            return Phaser.Input.Keyboard.JustDown(this.#cursorkeys.up);
+           // return Phaser.Input.Keyboard.JustDown(this.#wasdKeys.up);
     }
   
 
     get isDownDown(): boolean {
-        //return this.#cursorkeys.down.isDown;
-        return this.#wasdKeys.down.isDown;
+        return this.#cursorkeys.down.isDown;
+        //return this.#wasdKeys.down.isDown;
     }
 
         get isDownJustDown(): boolean {
-            //return Phaser.Input.Keyboard.JustDown(this.#cursorkeys.down);
-            return Phaser.Input.Keyboard.JustDown(this.#wasdKeys.down);
+            return Phaser.Input.Keyboard.JustDown(this.#cursorkeys.down);
+            //return Phaser.Input.Keyboard.JustDown(this.#wasdKeys.down);
     }
     
     get isLeftDown(): boolean {
-        //return this.#cursorkeys.left.isDown;
-        return this.#wasdKeys.left.isDown;
+        return this.#cursorkeys.left.isDown;
+        //return this.#wasdKeys.left.isDown;
     }
 
     get isRightDown(): boolean {
-        //return this.#cursorkeys.right.isDown;
-        return this.#wasdKeys.right.isDown;
+        return this.#cursorkeys.right.isDown;
+        //return this.#wasdKeys.right.isDown;
     }
     
     get isActionKeyJustDown(): boolean {
@@ -73,8 +73,8 @@ export class KeyboardComponent extends InputComponent {
     }
 
     get isSelectKeyJustDown(): boolean {
-        //return Phaser.Input.Keyboard.JustDown(this.#cursorkeys.shift);
-        return Phaser.Input.Keyboard.JustDown(this.#actionKey);
+        return Phaser.Input.Keyboard.JustDown(this.#cursorkeys.shift);
+        //return Phaser.Input.Keyboard.JustDown(this.#actionKey);
     }
     
      get isEnterKeyJustDown(): boolean {

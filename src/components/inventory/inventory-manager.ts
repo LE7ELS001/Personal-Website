@@ -42,7 +42,13 @@ export class InventoryManager {
                 bossKey: false,
                 compass: false,
                 keys: 0,
-            }
+            },
+            PORTFOLIO: {
+                 map: false,
+                bossKey: false,
+                compass: false,
+                keys: 0,
+             }
         }
     }
 

@@ -2393,6 +2393,95 @@
                  "layers":[
                         {
                          "draworder":"topdown",
+                         "id":50,
+                         "name":"crystals",
+                         "objects":[
+                                {
+                                 "gid":1432,
+                                 "height":16,
+                                 "id":137,
+                                 "name":"",
+                                 "opacity":1,
+                                 "properties":[
+                                        {
+                                         "name":"assetkey",
+                                         "propertytype":"crystalAssetKey",
+                                         "type":"string",
+                                         "value":"controller"
+                                        }, 
+                                        {
+                                         "name":"type",
+                                         "propertytype":"crystal type",
+                                         "type":"string",
+                                         "value":"game"
+                                        }],
+                                 "rotation":0,
+                                 "type":"crystal",
+                                 "visible":true,
+                                 "width":16,
+                                 "x":1184,
+                                 "y":736
+                                }, 
+                                {
+                                 "gid":1432,
+                                 "height":16,
+                                 "id":139,
+                                 "name":"",
+                                 "opacity":1,
+                                 "properties":[
+                                        {
+                                         "name":"assetkey",
+                                         "propertytype":"crystalAssetKey",
+                                         "type":"string",
+                                         "value":"map"
+                                        }, 
+                                        {
+                                         "name":"type",
+                                         "propertytype":"crystal type",
+                                         "type":"string",
+                                         "value":"levelDesign"
+                                        }],
+                                 "rotation":0,
+                                 "type":"crystal",
+                                 "visible":true,
+                                 "width":16,
+                                 "x":1184,
+                                 "y":672
+                                }, 
+                                {
+                                 "gid":1432,
+                                 "height":16,
+                                 "id":140,
+                                 "name":"",
+                                 "opacity":1,
+                                 "properties":[
+                                        {
+                                         "name":"assetkey",
+                                         "propertytype":"crystalAssetKey",
+                                         "type":"string",
+                                         "value":"earth"
+                                        }, 
+                                        {
+                                         "name":"type",
+                                         "propertytype":"crystal type",
+                                         "type":"string",
+                                         "value":"3D"
+                                        }],
+                                 "rotation":0,
+                                 "type":"crystal",
+                                 "visible":true,
+                                 "width":16,
+                                 "x":1088,
+                                 "y":656
+                                }],
+                         "opacity":1,
+                         "type":"objectgroup",
+                         "visible":true,
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "draworder":"topdown",
                          "id":27,
                          "name":"doors",
                          "objects":[
@@ -2573,7 +2662,6 @@
                          "x":0,
                          "y":0
                         }],
-                 "locked":true,
                  "name":"4",
                  "opacity":1,
                  "type":"group",
@@ -3470,7 +3558,6 @@
                          "x":0,
                          "y":0
                         }],
-                 "locked":true,
                  "name":"1",
                  "opacity":1,
                  "type":"group",
@@ -3481,7 +3568,7 @@
          "name":"rooms",
          "opacity":1,
          "type":"group",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }, 
@@ -3668,8 +3755,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":49,
- "nextobjectid":136,
+ "nextlayerid":51,
+ "nextobjectid":141,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

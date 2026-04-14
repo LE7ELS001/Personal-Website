@@ -255,6 +255,45 @@ export function getTiledPotObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerNam
   return potObjects;
 }
 
+/*
+* Finds all of the vlide 'crystal' Tiled objects on a given layer of a Tilemap
+*/
+export function getTiledCrystalObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layerName: string): TiledCrystalObject[] {
+  const crystalObjects: TiledCrystalObject[] = [];
+
+  const tiledObjects = getTiledObjectsFromLayer(map, layerName);
+
+  tiledObjects.forEach((tiledObject) => {
+
+    // console.log('--- Tiled  ---');
+    // console.log('Name:', (tiledObject as any).name);
+    // console.log('Raw Properties:', tiledObject.properties);
+
+
+    const assetKey = getTiledPropertyByName<string>(tiledObject.properties, 'assetkey');
+    const portfolioId = getTiledPropertyByName<string>(tiledObject.properties, 'type');
+
+    //console.log('assetKey:', assetKey, '| portfolioId:', portfolioId);
+
+    if (assetKey === undefined || portfolioId === undefined) {
+      console.warn(`the crystal at (${tiledObject.x}, ${tiledObject.y}) is missing required custom properties 'assetKey' or 'type'`);
+      return;
+    }
+
+    crystalObjects.push({
+      x: tiledObject.x,
+      y: tiledObject.y,
+      width: tiledObject.width,
+      height: tiledObject.height,
+      assetKey,
+      portfolioId,
+    });
+  });
+
+  return crystalObjects;
+}
+
+
 /**
  * Finds all of the valid 'Chest' Tiled Objects on a given layer of a Tilemap.
  */
@@ -369,6 +408,15 @@ export function getTiledSwitchObjectsFromMap(map: Phaser.Tilemaps.Tilemap, layer
 
   return switchObjects;
 }
+
+export type TiledCrystalObject = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  assetKey: string;    //crystal color
+  portfolioId: string; // which portfolio it opens
+};
 
 export function isSwitchTexture(switchTexture: string): switchTexture is SwitchTexture {
   return SWITCH_TEXTURE[switchTexture] !== undefined;

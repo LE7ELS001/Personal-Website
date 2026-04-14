@@ -46,7 +46,7 @@ export class DataManager {
                 maxHealth: PLAYER_START_MAX_HEALTH,
                 baseAttack: PLAYER_ATTACK_DAMAGE,
                 currentArea: {
-                    name: LEVEL_NAME.DUNGEON_1,
+                    name: LEVEL_NAME.PORTFOLIO,
                     startRoomId: 1,
                     startDoorId:99,
                 },
@@ -56,6 +56,9 @@ export class DataManager {
                     },
                     WORLD: {
                         
+                    },
+                     PORTFOLIO: {
+
                     }
                 }
             }

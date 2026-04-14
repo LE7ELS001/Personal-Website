@@ -1,4 +1,5 @@
 import { ASSET_KEYS, PLAYER_ANIMATION_KEYS } from "../../common/assets";
+import { DIRECTION } from "../../common/common";
 import { PLAYER_ATTACK_DAMAGE, PLAYER_HURT_PUSH_BACK_SPEED, PLAYER_INVULNERABLE_AFTER_HIT_DURATION, PLAYER_SPEED } from "../../common/config";
 import { flash } from "../../common/juice-utils";
 import {  GameObject, Position } from "../../common/types";
@@ -35,6 +36,9 @@ export type PlayerConfig = {
 export class Player extends CharacterGameObject{
     #collidingObjectComponent: CollidingObjectsComponent;
     #weaponComponent: WeaponComponent;
+
+    // mouse click location
+    public moveTarget: Phaser.Math.Vector2 | null = null;
 
 
     constructor(config: PlayerConfig) {
@@ -98,6 +102,8 @@ export class Player extends CharacterGameObject{
             RIGHT: PLAYER_ANIMATION_KEYS.SWORD_1_ATTACK_SIDE,
         },PLAYER_ATTACK_DAMAGE);
 
+
+        this.direction = DIRECTION.UP;
 
         // add state machine 
         this._stateMachine.addState(new IdleState(this));
